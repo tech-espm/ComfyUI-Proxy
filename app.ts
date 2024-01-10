@@ -8,6 +8,7 @@ app.run({
 	root: appsettings.root,
 	port: appsettings.port,
 	sqlConfig: appsettings.sqlConfig,
+	disableStaticFiles: appsettings.disableStaticFiles,
 
 	onInit: function () {
 		app.express.locals.Perfil = Perfil;

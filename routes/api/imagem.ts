@@ -6,23 +6,6 @@ import Usuario = require("../../models/usuario");
 
 class ImagemApiRoute {
 	@app.http.post()
-	public static async criar(req: app.Request, res: app.Response) {
-		const u = await Usuario.cookie(req, res);
-		if (!u)
-			return;
-
-		const r = await Imagem.criar(u.id);
-
-		if (typeof r === "string")
-			res.status(400);
-
-		res.json({
-			id: r,
-			idusuario: u.id
-		});
-	}
-
-	@app.http.post()
 	public static async listar(req: app.Request, res: app.Response) {
 		const u = await Usuario.cookie(req, res);
 		if (!u)

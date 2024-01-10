@@ -9,7 +9,8 @@
 		"experimentalDecorators": true
 	},
 	"exclude": [
-		"android",
+		"comfyUIAssets",
+		"dados",
 		"node_modules",
 		"public",
 		"scss",

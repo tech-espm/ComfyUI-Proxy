@@ -1,4 +1,5 @@
 ﻿import app = require("teem");
+import appsettings = require("../appsettings");
 import DataUtil = require("../utils/dataUtil");
 import Imagem = require("../models/imagem");
 import Usuario = require("../models/usuario");
@@ -17,6 +18,19 @@ class IndexRoute {
 				xlsx: true,
 				dataInicial: DataUtil.horarioDeBrasiliaISO(-7 * 24 * 60 * 60),
 				dataFinal: DataUtil.horarioDeBrasiliaISO()
+			});
+	}
+
+	public static async comfyUI(req: app.Request, res: app.Response) {
+		let u = await Usuario.cookie(req);
+		if (!u)
+			res.redirect(app.root + "/login");
+		else
+			res.render("index/comfyUI", {
+				layout: "layout-vazio",
+				usuario: u,
+				urlSite: appsettings.urlSite,
+				urlWSProxy: appsettings.comfyUIWSProxy
 			});
 	}
 
@@ -100,6 +114,200 @@ class IndexRoute {
 			return;
 
 		await Imagem.baixar(parseInt(req.params["id"]), u.id, u.admin, false, res);
+	}
+
+	@app.http.hidden()
+	private static async comfyUISend(method: string, rota: string, u: Usuario, req: app.Request, res: app.Response) {
+		const url = appsettings.comfyUIAPI[u.id & 1] + rota;
+
+		let r: app.BufferResponse;
+
+		if (method === "post")
+			r = await app.request.buffer.postObject(url, req.body, {
+				headers: {
+					"Comfy-User": u.email
+				}
+			});
+		else
+			r = await app.request.buffer.get(url, {
+				headers: {
+					"Comfy-User": u.email
+				}
+			});
+
+		if (r.statusCode === 204)
+			res.sendStatus(204);
+		else
+			res.status(r.statusCode).contentType(r.headers["content-type"] || "application/octet-stream").end(r.result || "");
+	}
+
+	@app.route.methodName("comfyUIAssets/*")
+	public static async comfyUIAssets(req: app.Request, res: app.Response) {
+		if (req.params && req.params[0]) {
+			if (req.params[0].indexOf("..") >= 0 || req.params[0].indexOf("*") >= 0)
+				res.status(404).json("Proibido");
+			else
+				res.sendFile(app.fileSystem.absolutePath("comfyUIAssets/" + req.params[0]));
+		} else {
+			res.sendStatus(404).json("Não encontrado");
+		}
+	}
+
+	@app.route.methodName("extensions")
+	public static async comfyUIExtensions(req: app.Request, res: app.Response) {
+		let u = await Usuario.cookie(req, res);
+		if (!u)
+			return;
+
+		await this.comfyUISend("get", "/extensions", u, req, res);
+	}
+
+	@app.route.methodName("embeddings")
+	public static async comfyUIEmbeddings(req: app.Request, res: app.Response) {
+		let u = await Usuario.cookie(req, res);
+		if (!u)
+			return;
+
+		await this.comfyUISend("get", "/embeddings", u, req, res);
+	}
+
+	@app.route.methodName("history")
+	public static async comfyUIHistory(req: app.Request, res: app.Response) {
+		let u = await Usuario.cookie(req, res);
+		if (!u)
+			return;
+
+		await this.comfyUISend("get", "/history?max_items=" + encodeURIComponent(req.query["max_items"] as string), u, req, res);
+	}
+
+	@app.route.methodName("object_info")
+	public static async comfyUIObjectInfo(req: app.Request, res: app.Response) {
+		let u = await Usuario.cookie(req, res);
+		if (!u)
+			return;
+
+		await this.comfyUISend("get", "/object_info", u, req, res);
+	}
+
+	@app.route.methodName("queue")
+	public static async comfyUIQueue(req: app.Request, res: app.Response) {
+		let u = await Usuario.cookie(req, res);
+		if (!u)
+			return;
+
+		await this.comfyUISend("get", "/queue", u, req, res);
+	}
+
+	@app.route.methodName("prompt")
+	public static async comfyUIPrompt(req: app.Request, res: app.Response) {
+		let u = await Usuario.cookie(req, res);
+		if (!u)
+			return;
+
+		await this.comfyUISend("get", "/prompt", u, req, res);
+	}
+
+	@app.http.post()
+	@app.route.methodName("prompt")
+	public static async comfyUIPromptPost(req: app.Request, res: app.Response) {
+		let u = await Usuario.cookie(req, res);
+		if (!u)
+			return;
+
+		if (!req.body || !req.body.extra_data || !req.body.extra_data.extra_pnginfo || !req.body.extra_data.extra_pnginfo.workflow) {
+			res.status(400).json("Metadados faltando");
+			return;
+		}
+
+		const r = await Imagem.validarPromptECriar(req.body, u.id);
+		if (typeof r === "string") {
+			res.status(400).json(r);
+			return;
+		}
+
+		if (!req.body.extra_data.extra_pnginfo.workflow.extra)
+			req.body.extra_data.extra_pnginfo.workflow.extra = {};
+
+		req.body.extra_data.extra_pnginfo.workflow.extra.idusuario = u.id;
+		req.body.extra_data.extra_pnginfo.workflow.extra.idimagem = r;
+		req.body.number = r;
+
+		await this.comfyUISend("post", "/prompt", u, req, res);
+	}
+
+	@app.route.methodName("settings")
+	public static async comfyUISettings(req: app.Request, res: app.Response) {
+		let u = await Usuario.cookie(req, res);
+		if (!u)
+			return;
+
+		await this.comfyUISend("get", "/settings", u, req, res);
+	}
+
+	@app.http.post()
+	@app.route.methodName("settings/*")
+	public static async comfyUISettingsPost(req: app.Request, res: app.Response) {
+		let u = await Usuario.cookie(req, res);
+		if (!u)
+			return;
+
+		if (req.params && req.params[0]) {
+			if (req.params[0].indexOf("..") >= 0 || req.params[0].indexOf("*") >= 0)
+				res.status(404).json("Proibido");
+			else
+				await this.comfyUISend("post", "/settings/" + req.params[0], u, req, res);
+		} else {
+			res.sendStatus(404).json("Não encontrado");
+		}
+	}
+
+	@app.route.methodName("system_stats")
+	public static async comfyUISystemStats(req: app.Request, res: app.Response) {
+		let u = await Usuario.cookie(req, res);
+		if (!u)
+			return;
+
+		await this.comfyUISend("get", "/system_stats", u, req, res);
+	}
+
+	@app.route.methodName("userdata/*")
+	public static async comfyUIUserdata(req: app.Request, res: app.Response) {
+		let u = await Usuario.cookie(req, res);
+		if (!u)
+			return;
+
+		if (req.params && req.params[0]) {
+			if (req.params[0].indexOf("..") >= 0 || req.params[0].indexOf("*") >= 0)
+				res.status(404).json("Proibido");
+			else
+				await this.comfyUISend("get", "/userdata/" + req.params[0], u, req, res);
+		} else {
+			res.sendStatus(404).json("Não encontrado");
+		}
+	}
+
+	@app.route.methodName("users")
+	public static async comfyUIUsers(req: app.Request, res: app.Response) {
+		let u = await Usuario.cookie(req, res);
+		if (!u)
+			return;
+
+		await this.comfyUISend("get", "/users", u, req, res);
+	}
+
+	@app.route.methodName("view")
+	public static async comfyUIView(req: app.Request, res: app.Response) {
+		let u = await Usuario.cookie(req, res);
+		if (!u)
+			return;
+
+		let query = "";
+
+		const i = req.url.indexOf("?");
+		if (i >= 0)
+			query = req.url.substring(i);
+
+		await this.comfyUISend("get", "/view" + query, u, req, res);
 	}
 }
 

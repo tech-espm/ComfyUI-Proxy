@@ -33,7 +33,9 @@ class Imagem {
 		}
 	}
 
-	public static criar(idusuario: number): Promise<string | number> {
+	public static validarPromptECriar(prompt: any, idusuario: number): Promise<string | number> {
+		// @@@ Validar o prompt
+
 		return app.sql.connect(async (sql) => {
 			try {
 				await sql.query("insert into imagem (idusuario, tamanho, criacao) values (?, 0, ?)", [idusuario, DataUtil.horarioDeBrasiliaISOComHorario()]);

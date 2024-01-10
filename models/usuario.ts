@@ -193,6 +193,8 @@ class Usuario {
 		return app.sql.connect(async (sql) => {
 			try {
 				await sql.query("insert into usuario (email, nome, idperfil, senha, criacao) values (?, ?, ?, ?, now())", [usuario.email, usuario.nome, usuario.idperfil, await GeradorHash.criarHash(usuario.senha)]);
+
+				usuario.id = await sql.scalar("select last_insert_id()") as number;
 			} catch (ex: any) {
 				if (ex.code) {
 					switch (ex.code) {
@@ -208,6 +210,14 @@ class Usuario {
 					throw ex;
 				}
 			}
+
+			//await app.request.json.postObject(appsettings.comfyUIAPI[usuario.id & 1] + "/users", {
+			//	"username": usuario.email
+			//}, {
+			//	headers: {
+			//		"Comfy-User": usuario.email
+			//	}
+			//});
 
 			return null;
 		});

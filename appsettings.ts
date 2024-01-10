@@ -23,6 +23,12 @@ export = {
 		database: process.env.app_sqlConfig_database as string
 	},
 
+	comfyUIAPI: [
+		process.env.app_comfyUIAPI0 as string,
+		process.env.app_comfyUIAPI1 as string
+	],
+	comfyUIWSProxy: process.env.app_comfyUIWSProxy as string,
+
 	pastaDados: process.env.app_pastaDados as string,
 	chaveImagem: process.env.app_chaveImagem as string,
 
