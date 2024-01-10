@@ -1,0 +1,30 @@
+﻿<script type="text/javascript" charset="utf-8" src="<%- staticRoot %>/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script type="text/javascript" charset="utf-8" src="<%- staticRoot %>/lib/jquery-mask/jquery-mask-1.14.16.min.js"></script>
+<script type="text/javascript" charset="utf-8" src="<%- staticRoot %>/lib/jquery-validate/jquery-validate-1.0.7.min.js"></script>
+<script type="text/javascript" charset="utf-8" src="<%- staticRoot %>/lib/jquery-validate/messages_pt_BR.min.js"></script>
+
+<% if (typeof datatables !== "undefined" && datatables) { %>
+<script type="text/javascript" src="<%- staticRoot %>/lib/datatables.net/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="<%- staticRoot %>/lib/datatables.net-bs4/js/dataTables.bootstrap4.min.js"></script>
+<script type="text/javascript" src="<%- staticRoot %>/lib/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
+<script type="text/javascript" src="<%- staticRoot %>/lib/datatables.net-buttons-bs4/js/buttons.bootstrap4.min.js"></script>
+<script type="text/javascript" src="<%- staticRoot %>/lib/datatables.net-buttons/js/buttons.html5.min.js"></script>
+<script type="text/javascript" src="<%- staticRoot %>/lib/datatables.net-buttons/js/buttons.flash.min.js"></script>
+<script type="text/javascript" src="<%- staticRoot %>/lib/datatables.net-buttons/js/buttons.print.min.js"></script>
+<script type="text/javascript" src="<%- staticRoot %>/lib/datatables.net-select/js/dataTables.select.min.js"></script>
+<script type="text/javascript" src="<%- staticRoot %>/js/datatables-custom.js?20230403"></script>
+<% } %>
+
+<% if (typeof xlsx !== "undefined" && xlsx) { %>
+<script type="text/javascript" src="<%- staticRoot %>/lib/sheetjs/xlsx.full.min.js"></script>
+<% } %>
+
+<% if (typeof clipboard !== "undefined" && clipboard) { %>
+<script type="text/javascript" src="<%- staticRoot %>/lib/clipboard/dist/clipboard.min.js"></script>
+<% } %>
+
+<% if (typeof cidades !== "undefined" && cidades) { %>
+<script type="text/javascript" src="<%- staticRoot %>/js/cidades.js?2"></script>
+<% } %>
+
+<script type="text/javascript" charset="utf-8" src="<%- staticRoot %>/js/admin.js?20221212"></script>

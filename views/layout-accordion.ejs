@@ -1,0 +1,71 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="pt-br">
+<head>
+	<%- include("cabecalho") %>
+
+	<%- defineContent("styles") %>
+</head>
+<body>
+	<div id="wrapper">
+
+		<%- include("sidebar") %>
+
+		<div id="content-wrapper" class="d-flex flex-column">
+
+			<div id="content">
+
+				<%- include("topbar") %>
+
+				<div class="container-fluid">
+
+					<h1 class="mb-4 text-gray-800"><%=((typeof titulo === "undefined" || !titulo) ? "ESPM ComfyUI" : titulo) %></h1>
+
+					<%- defineContent("topcontent") %>
+
+					<div class="accordion" id="accordionForm">
+						<form class="card shadow mb-4" id="form">
+							<div class="card-header">
+								<div class="row align-items-center">
+									<div class="col">
+										<button class="btn btn-block text-left p-0 border-0" type="button" data-toggle="collapse" data-target="#collapseForm" aria-expanded="true" aria-controls="collapseForm">
+											<b><%=((typeof subtitulo === "undefined" || !subtitulo) ? "Informações" : subtitulo) %></b>
+										</button>
+									</div>
+									<%- defineContent("headeritems") %>
+								</div>
+							</div>
+
+							<div id="collapseForm" class="collapse show" data-parent="#accordionForm">
+								<div class="card-body">
+
+									<%- body %>
+
+								</div>
+							</div>
+
+							<div class="card-footer">
+								<div class="row align-items-center">
+									<div class="col-md-6 text-center text-md-left pb-3 pb-md-0">
+										<button type="submit" class="btn btn-primary"><i class="fa fa-check"></i> <%=((typeof textoSubmit === "undefined" || !textoSubmit) ? "Salvar" : textoSubmit) %></button>
+									</div>
+									<div class="col-md-6 text-center text-md-right">
+										<button type="button" class="btn btn-light" onclick="if (window.history.length > 1) { window.history.back(); } else { window.close() }">Voltar</button>
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+
+			</div>
+
+			<%- include("footer") %>
+		</div>
+
+	</div>
+
+	<%- include("rodape") %>
+
+	<%- defineContent("scripts") %>
+</body>
+</html>

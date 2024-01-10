@@ -1,0 +1,28 @@
+{
+  "name": "comfyui-proxy",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node src/app",
+    "sass": "sass scss/sb-admin-2.scss public/css/style.min.css --style=compressed"
+  },
+  "description": "Proxy e controle de acesso ao ComfyUI",
+  "author": {
+    "name": "ESPM"
+  },
+  "main": "src/app.js",
+  "dependencies": {
+    "dotenv": "16.0.1",
+    "nodemailer": "6.7.5",
+    "teem": "0.0.23"
+  },
+  "devDependencies": {
+    "@types/express": "4.17.13",
+    "@types/express-serve-static-core": "4.17.28",
+    "@types/node": "14.14.21",
+    "@types/nodemailer": "6.4.4"
+  },
+  "engines": {
+    "node": ">=12.0.0"
+  }
+}

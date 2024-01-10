@@ -1,0 +1,143 @@
+﻿<div id="tabelaContainer">
+	<div class="text-center">Clique em Buscar para listar as imagens criadas no período selecionado.</div>
+</div>
+
+<%- contentFor("topcontent") %>
+
+<form class="card shadow mb-4" id="form">
+	<div class="card-body">
+		<div class="row">
+			<div class="col-sm-6 col-md-3">
+				<div class="form-group">
+					<label for="dataInicial">Data Inicial</label>
+					<input id="dataInicial" type="date" class="form-control" value="<%- dataInicial %>" />
+				</div>
+			</div>
+
+			<div class="col-sm-6 col-md-3">
+				<div class="form-group">
+					<label for="dataFinal">Data Final</label>
+					<input id="dataFinal" type="date" class="form-control" value="<%- dataFinal %>" />
+				</div>
+			</div>
+		</div>
+
+		<div class="text-center text-md-right">
+			<button type="submit" class="btn btn-primary">Buscar</button>
+		</div>
+	</div>
+</form>
+
+<%- contentFor("scripts") %>
+
+<script type="text/javascript">
+	//<![CDATA[
+	"use strict";
+
+	let tabela = null,
+		dataInicial = null,
+		dataFinal = null;
+
+	document.getElementById("form").onsubmit = function (e) {
+		cancelEvent(e);
+
+		buscarImagens();
+
+		return false;
+	}
+
+	function atualizarTabela(dados) {
+		$("#tabelaContainer").html('<table class="table table-flush table-striped table-hover" id="tabela"></table>');
+
+		tabela = prepareDataTable("tabela", {
+			order: [[2, "desc"]],
+			deferRender: true,
+			columns: [
+				{ title: "", "class": "col-min", searchable: false, orderable: false, data: "id", render: function (v, type, row) { return (row.tamanho ? '<a target="_blank" title="Baixar" href="<%- root %><%- PrefixoAbsolutoImagem %>' + row.id + '" class="btn btn-sm btn-outline-primary"><i class="fa fa-fw fa-download"></i></a> ' : '') + '<button title="Excluir" type="button" data-excluir="1" class="btn btn-sm btn-outline-danger"><i class="fa fa-fw fa-times"></i></button>'; } },
+				{ title: "", "class": "col-min", searchable: false, orderable: false, data: "id", render: function (v, type, row) { return (row.tamanho ? '<img width="64" alt="Imagem" src="<%- root %><%- PrefixoAbsolutoIcone %>' + row.id + '" />' : ''); } },
+				{ title: "Id", "type": "number", data: "id" },
+				//<% if (usuario.admin) { %>
+				{ title: "Usuário", render: encode, data: "email" },
+				//<% } %>
+				{ title: "Tamanho", "type": "number", data: "tamanho" },
+				{ title: "Criação", "type": "customdatetimeint", data: "criacao" },
+				{ title: "Conclusão", "type": "customdatetimeint", data: "envio" }
+			],
+			data: dados || [],
+			export: { xlsx: true, title: "Imagens (" + dataInicial + " até " + dataFinal + ")" }
+		});
+
+		$("#tabela").on("click", "tbody button", function () {
+			if (JsonWebApi.active)
+				return;
+
+			let trClicada = this.parentNode.parentNode,
+				id = null,
+				imagem = tabela.row(trClicada).data();
+
+			if (this.getAttribute("data-excluir")) {
+				Swal.okcancel({
+					html: 'Tem certeza que deseja excluir a imagem com id ' + imagem.id + '? Esta operação NÃO pode ser desfeita!<br/><br/>Para confirmar a exclusão, por favor, digite abaixo o id da imagem conforme exibido acima.<br/><br/><label for="txtExcluirId">Id da imagem</label><input type="text" class="form-control" spellcheck="false" autocomplete="off" id="txtExcluirId" />',
+					confirmButtonText: "Excluir",
+					preConfirm: function () {
+						id = parseInt($("#txtExcluirId").val()) || 0;
+						return true;
+					}
+				}, null, true).then(function (result) {
+					if (JsonWebApi.active || !trClicada)
+						return;
+
+					if (result.value) {
+						if (id !== parseInt(imagem.id)) {
+							Swal.error("O id da imagem não confere! " + emoji.sad);
+							return;
+						}
+
+						Swal.wait();
+
+						JsonWebApi.delete("<%- root %>/api/imagem/excluir", function (response) {
+							if (response.success) {
+								Swal.success("Imagem excluída com sucesso! " + emoji.happy);
+								tabela.row(trClicada).remove().draw();
+							} else {
+								Swal.error(response.value + " " + emoji.sad);
+							}
+							trClicada = null;
+						}, "id", imagem.id);
+					}
+				});
+			}
+		});
+	}
+
+	function buscarImagens() {
+		if (JsonWebApi.active)
+			return false;
+
+		dataInicial = $("#dataInicial").val();
+		dataFinal = $("#dataFinal").val();
+
+		if (!dataInicial || !dataFinal) {
+			Swal.error("Por favor, é necessário preencher ambas as datas para poder buscar as imagens! " + emoji.sad);
+			return false;
+		}
+
+		Swal.wait();
+
+		JsonWebApi.post("<%- root %>/api/imagem/listar", {
+			dataInicial: dataInicial,
+			dataFinal: dataFinal
+		}, function (response) {
+			if (response.success) {
+				Swal.close();
+				atualizarTabela(response.value);
+			} else {
+				Swal.error(response.value + " " + emoji.sad);
+			}
+		});
+	}
+
+	//buscarImagens();
+
+	//]]>
+</script>
