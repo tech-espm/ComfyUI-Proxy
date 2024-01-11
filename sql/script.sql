@@ -42,5 +42,6 @@ CREATE TABLE imagem (
   PRIMARY KEY (id),
   KEY imagem_idusuario_FK_IX (idusuario, criacao),
   KEY imagem_criacao_IX (criacao),
+  KEY imagem_envio_idusuario_IX (envio, idusuario),
   CONSTRAINT imagem_idusuario_FK FOREIGN KEY (idusuario) REFERENCES usuario (id) ON DELETE RESTRICT ON UPDATE RESTRICT
 );

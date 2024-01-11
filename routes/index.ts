@@ -198,6 +198,24 @@ class IndexRoute {
 		await this.comfyUISend("get", "/queue", u, req, res);
 	}
 
+	@app.http.hidden()
+	@app.route.methodName("queue")
+	public static async comfyUIQueuePost(req: app.Request, res: app.Response) {
+		let u = await Usuario.cookie(req, res);
+		if (!u)
+			return;
+
+		if (req.body && Array.isArray(req.body.delete) && req.body.delete[0]) {
+			const erro = await Imagem.excluir(parseInt(req.body.delete[0]) || 0, u.id, u.admin, true);
+			if (erro) {
+				res.status(400).json(erro);
+				return;
+			}
+		}
+
+		res.sendStatus(204);
+	}
+
 	@app.route.methodName("prompt")
 	public static async comfyUIPrompt(req: app.Request, res: app.Response) {
 		let u = await Usuario.cookie(req, res);
@@ -228,6 +246,8 @@ class IndexRoute {
 		if (!req.body.extra_data.extra_pnginfo.workflow.extra)
 			req.body.extra_data.extra_pnginfo.workflow.extra = {};
 
+		req.body.extra_data.idusuario = u.id;
+		req.body.extra_data.idimagem = r;
 		req.body.extra_data.extra_pnginfo.workflow.extra.idusuario = u.id;
 		req.body.extra_data.extra_pnginfo.workflow.extra.idimagem = r;
 		req.body.number = r;
@@ -306,6 +326,15 @@ class IndexRoute {
 		const i = req.url.indexOf("?");
 		if (i >= 0)
 			query = req.url.substring(i);
+
+		let idimagem: number;
+		if (!req.query["subfolder"] &&
+			req.query["type"] === "output" &&
+			(idimagem = parseInt(req.query["filename"] as string)) &&
+			(idimagem + ".png") === req.query["filename"]) {
+			res.redirect(app.root + "/p/" + idimagem);
+			return;
+		}
 
 		await this.comfyUISend("get", "/view" + query, u, req, res);
 	}

@@ -40,10 +40,10 @@ class ImagemApiRoute {
 			return;
 		}
 
-		dados.id = parseInt(dados.id) || 0;
+		dados.idimagem = parseInt(dados.idimagem) || 0;
 		dados.idusuario = parseInt(dados.idusuario) || 0;
 
-		const erro = await Imagem.enviar(dados.id, dados.idusuario, dados.base64I, dados.base64P);
+		const erro = await Imagem.enviar(dados.idimagem, dados.idusuario, dados.base64I, dados.base64P);
 
 		if (erro) {
 			res.status(400).json(erro);
@@ -69,7 +69,7 @@ class ImagemApiRoute {
 			return;
 		}
 
-		const erro = await Imagem.excluir(id, u.id, u.admin);
+		const erro = await Imagem.excluir(id, u.id, u.admin, false);
 
 		if (erro) {
 			res.status(400).json(erro);

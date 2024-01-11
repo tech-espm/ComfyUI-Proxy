@@ -212,13 +212,14 @@ class ComfyList {
 									}
 								},
 							}),
-							$el("button", {
-								textContent: removeAction.name,
-								onclick: async () => {
-									await removeAction.cb();
-									await this.update();
-								},
-							}),
+							// @@@ ESPM
+							//$el("button", {
+							//	textContent: removeAction.name,
+							//	onclick: async () => {
+							//		await removeAction.cb();
+							//		await this.update();
+							//	},
+							//}),
 						]);
 					}),
 				]),
@@ -568,24 +569,41 @@ export class ComfyUI {
 			// @@@ ESPM
 			$el("div"),
 			$el("button", {
+				id: "comfy-platform-button", textContent: "Sistema", onclick: async () => {
+					window.open(window.api_base + "/");
+				}
+			}),
+			$el("button", {
 				id: "comfy-about-button", textContent: "Aviso", onclick: async () => {
 					app.ui.dialog.show(`<span style="color:var(--input-text)"><b>AVISO IMPORTANTE</b>
 
 					Diversos cuidados foram tomados para dificultar a geração de imagens com temas sensíveis ou inapropriados.
-					Contudo, acredita-se que a plataforma ainda não seja 100% segura devido à enorme complexidade e grandeza dos modelos de IA utilizados.
-					Assim, ao utilizar esta plataforma, você se responsabiliza por todas as imagens que você gerar.
-					Os modelos de IA utilizados dentro da plataforma são gratuitos, publicamente disponíveis para download, e de responsabilidade dos respectivos autores.
-					A ESPM não se responsabiliza por qualquer tipo de imagem gerada contendo conteúdo sensível, inapropriado, censurado, enviesado, ofensivo, falso, violento, que infrinja alguma lei ou direito autoral, ou de qualquer outra natureza que possa ser inadequada para alguma faixa etária ou que seja ofensivo a qualquer pessoa.
-					Todas as imagens geradas por meio da plataforma são armazenadas, juntamente com seus prompts, ficando associadas aos usuários que as geraram.
-					Ao utilizar a plataforma você concorda que leu e que esteja de acordo com tudo descrito aqui.
 
-					A plataforma é baseada no projeto <a style="color: inherit;" target="_blank" href="https://github.com/comfyanonymous/ComfyUI">ComfyUI</a>, licenciado sob a <a style="color: inherit;" target="_blank" href="https://github.com/comfyanonymous/ComfyUI/blob/master/LICENSE">GPL-3.0</a>.</span>`);
+					Contudo, acredita-se que a plataforma ainda não seja 100% segura devido à enorme complexidade e grandeza dos modelos de IA utilizados.
+
+					Assim, ao utilizar esta plataforma, você se responsabiliza por todas as imagens que você gerar.
+
+					Os modelos de IA utilizados dentro da plataforma são gratuitos, publicamente disponíveis para download, e de responsabilidade dos respectivos autores.
+
+					A ESPM não se responsabiliza por qualquer tipo de imagem gerada contendo conteúdo sensível, inapropriado, censurado, enviesado, ofensivo, falso, violento, que infrinja alguma lei ou direito autoral, ou de qualquer outra natureza que possa ser inadequada para alguma faixa etária ou que seja ofensivo a qualquer pessoa.
+
+					Todas as imagens geradas por meio da plataforma são armazenadas, juntamente com seus prompts, ficando associadas aos usuários que as geraram.
+
+					<b>Ao utilizar a plataforma você concorda que leu e que esteja de acordo com tudo descrito aqui</b>.
+
+					<hr />
+
+					A geração de imagens se baseia no projeto <a style="color: inherit;" target="_blank" href="https://github.com/comfyanonymous/ComfyUI">ComfyUI</a>, licenciado sob a <a style="color: inherit;" target="_blank" href="https://github.com/comfyanonymous/ComfyUI/blob/master/LICENSE">GPL-3.0</a>.
+
+					A edição de poses se baseia no projeto <a style="color: inherit;" target="_blank" href="https://github.com/space-nuko/ComfyUI-OpenPose-Editor">ComfyUI-OpenPose-Editor</a>.
+
+					A plataforma é composta pelos projetos <a style="color: inherit;" target="_blank" href="https://github.com/tech-espm/ComfyUI">ComfyUI</a>, <a style="color: inherit;" target="_blank" href="https://github.com/tech-espm/ComfyUI-Proxy">ComfyUI-Proxy</a> e <a style="color: inherit;" target="_blank" href="https://github.com/tech-espm/ComfyUI-WSProxy">ComfyUI-WSProxy</a>, todos licenciados a <a style="color: inherit;" target="_blank" href="https://github.com/tech-espm/ComfyUI-Proxy/blob/main/LICENSE">GPL-3.0</a>.</span>`);
 				}
 			}),
 		]);
 
 		// @@@ ESPM
-		this.menuContainer.children[this.menuContainer.children.length - 2].style.flex = "1 1 auto";
+		this.menuContainer.children[this.menuContainer.children.length - 3].style.flex = "1 1 auto";
 
 		const devMode = this.settings.addSetting({
 			id: "Comfy.DevMode",

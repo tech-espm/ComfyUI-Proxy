@@ -1970,7 +1970,10 @@ export class ComfyApp {
 						}
 
 						// @@@ ESPM
-						console.log(JSON.stringify(res));
+						if (res && res.number)
+							app.ui.dialog.show(`<span style="color:var(--input-text)"><b>OLHO NA FILA 😅</b>
+
+							Sua nova imagem é a de id <b>${res.number}</b>.</span>`);
 					} catch (error) {
 						const formattedError = this.#formatPromptError(error)
 						this.ui.dialog.show(formattedError);

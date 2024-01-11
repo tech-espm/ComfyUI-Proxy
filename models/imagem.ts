@@ -37,6 +37,10 @@ class Imagem {
 		// @@@ Validar o prompt
 
 		return app.sql.connect(async (sql) => {
+			const id = await sql.scalar("select id from imagem where envio is null and idusuario = ? limit 1", [idusuario]) as number;
+			if (id)
+				return `Sua imagem anterior, com id ${id}, ainda não foi gerada. Se ela ainda não começou a ser processada, por favor, exclua ela antes de gerar uma nova imagem.`;
+
 			try {
 				await sql.query("insert into imagem (idusuario, tamanho, criacao) values (?, 0, ?)", [idusuario, DataUtil.horarioDeBrasiliaISOComHorario()]);
 			} catch (ex: any) {
@@ -122,14 +126,14 @@ class Imagem {
 		});
 	}
 
-	public static async excluir(id: number, idusuario: number, admin: boolean): Promise<string | null> {
+	public static async excluir(id: number, idusuario: number, admin: boolean, apenasIncompleta: boolean): Promise<string | null> {
 		return app.sql.connect(async (sql) => {
 			const params = [id];
 
 			if (!admin)
 				params.push(idusuario);
 
-			await sql.query("delete from imagem where id = ?" + (admin ? "" : " and idusuario = ?"), params);
+			await sql.query("delete from imagem where id = ?" + (admin ? "" : " and idusuario = ?") + (apenasIncompleta ? " and envio is null" : ""), params);
 
 			if (sql.affectedRows) {
 				let caminho = Imagem.CaminhoRelativoIcone + id + ".png";
@@ -150,6 +154,15 @@ class Imagem {
 					} catch (ex: any) {
 						// Apenas ignora...
 					}
+				}
+
+				// Caso a imagem ainda não tivesse sido gerada, remove ela da fila
+				try {
+					await app.request.json.postObject(appsettings.comfyUIAPI[idusuario & 1] + "/queue", {
+						"delete": [id.toString()]
+					});
+				} catch (ex: any) {
+					// Apenas ignora...
 				}
 
 				return null;
