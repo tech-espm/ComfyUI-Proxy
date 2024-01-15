@@ -116,6 +116,15 @@ class IndexRoute {
 		await Imagem.baixar(parseInt(req.params["id"]), u.id, u.admin, false, res);
 	}
 
+	@app.route.methodName("baixarWorkflow/:id")
+	public static async baixarWorkflow(req: app.Request, res: app.Response) {
+		let u = await Usuario.cookie(req, res);
+		if (!u)
+			return;
+
+		await Imagem.baixarWorkflow(parseInt(req.params["id"]), u.id, u.admin, res);
+	}
+
 	@app.http.hidden()
 	private static async comfyUISend(method: string, rota: string, u: Usuario, req: app.Request, res: app.Response) {
 		const url = appsettings.comfyUIAPI[u.id & 1] + rota;
@@ -231,11 +240,6 @@ class IndexRoute {
 		let u = await Usuario.cookie(req, res);
 		if (!u)
 			return;
-
-		if (!req.body || !req.body.extra_data || !req.body.extra_data.extra_pnginfo || !req.body.extra_data.extra_pnginfo.workflow) {
-			res.status(400).json("Metadados faltando");
-			return;
-		}
 
 		const r = await Imagem.validarPromptECriar(req.body, u.id);
 		if (typeof r === "string") {

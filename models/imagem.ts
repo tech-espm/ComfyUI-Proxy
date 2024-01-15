@@ -8,6 +8,7 @@ interface Imagem {
 	idusuario: number;
 	tamanho: number;
 	criacao: string;
+	workflow: string;
 }
 
 class Imagem {
@@ -33,8 +34,10 @@ class Imagem {
 		}
 	}
 
-	public static validarPromptECriar(prompt: any, idusuario: number): Promise<string | number> {
+	public static async validarPromptECriar(prompt: any, idusuario: number): Promise<string | number> {
 		// @@@ Validar o prompt
+		if (!prompt || !prompt.extra_data || !prompt.extra_data.extra_pnginfo || !prompt.extra_data.extra_pnginfo.workflow)
+			return "Metadados faltando";
 
 		return app.sql.connect(async (sql) => {
 			const id = await sql.scalar("select id from imagem where envio is null and idusuario = ? limit 1", [idusuario]) as number;
@@ -42,7 +45,7 @@ class Imagem {
 				return `Sua imagem anterior, com id ${id}, ainda não foi gerada. Se ela ainda não começou a ser processada, por favor, exclua ela antes de gerar uma nova imagem.`;
 
 			try {
-				await sql.query("insert into imagem (idusuario, tamanho, criacao) values (?, 0, ?)", [idusuario, DataUtil.horarioDeBrasiliaISOComHorario()]);
+				await sql.query("insert into imagem (idusuario, tamanho, criacao, workflow) values (?, 0, ?, ?)", [idusuario, DataUtil.horarioDeBrasiliaISOComHorario(), JSON.stringify(prompt.extra_data.extra_pnginfo.workflow)]);
 			} catch (ex: any) {
 				if (ex.code) {
 					switch (ex.code) {
@@ -179,7 +182,7 @@ class Imagem {
 			if (!admin)
 				params.push(idusuario);
 
-			const tamanho = await sql.query("select tamanho from imagem where id = ?" + (admin ? "" : " and idusuario = ?"), params);
+			const tamanho = await sql.scalar("select tamanho from imagem where id = ?" + (admin ? "" : " and idusuario = ?"), params) as number;
 
 			return (tamanho ? null : "Imagem não encontrada");
 		});
@@ -199,6 +202,30 @@ class Imagem {
 		ajustarHeaderParaCache(res);
 
 		res.sendFile(app.fileSystem.absolutePath(caminho));
+	}
+
+	public static async baixarWorkflow(id: number, idusuario: number, admin: boolean, res: app.Response): Promise<void> {
+		const erro = await app.sql.connect(async (sql) => {
+			const params = [id];
+
+			if (!admin)
+				params.push(idusuario);
+
+			const workflow = await sql.scalar("select workflow from imagem where id = ?" + (admin ? "" : " and idusuario = ?"), params) as string;
+
+			if (!workflow)
+				return "Workflow não encontrado";
+
+			res.removeHeader("accept-ranges");
+			res.header("content-disposition", "attachment; filename=" + id + ".json");
+			res.contentType("application/json; charset=utf-8");
+			res.end(Buffer.from(workflow as string, "utf-8"));
+	
+			return null;
+		});
+
+		if (erro)
+			res.status(400).json(erro);
 	}
 }
 

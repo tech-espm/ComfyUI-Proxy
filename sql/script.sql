@@ -39,6 +39,7 @@ CREATE TABLE imagem (
   tamanho int NOT NULL,
   criacao datetime NOT NULL,
   envio datetime NULL,
+  workflow longtext NOT NULL,
   PRIMARY KEY (id),
   KEY imagem_idusuario_FK_IX (idusuario, criacao),
   KEY imagem_criacao_IX (criacao),

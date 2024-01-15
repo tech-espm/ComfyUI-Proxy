@@ -53,7 +53,7 @@
 			order: [[2, "desc"]],
 			deferRender: true,
 			columns: [
-				{ title: "", "class": "col-min", searchable: false, orderable: false, data: "id", render: function (v, type, row) { return (row.tamanho ? '<a target="_blank" title="Baixar" href="<%- root %><%- PrefixoAbsolutoImagem %>' + row.id + '" class="btn btn-sm btn-outline-primary"><i class="fa fa-fw fa-download"></i></a> ' : '') + '<button title="Excluir" type="button" data-excluir="1" class="btn btn-sm btn-outline-danger"><i class="fa fa-fw fa-times"></i></button>'; } },
+				{ title: "", "class": "col-min", searchable: false, orderable: false, data: "id", render: function (v, type, row) { return '<a target="_blank" title="Baixar Workflow" href="<%- root %>/baixarWorkflow/' + row.id + '" class="btn btn-sm btn-outline-success"><i class="fa fa-fw fa-project-diagram"></i></a> ' + (row.tamanho ? '<a target="_blank" title="Baixar Imagem" href="<%- root %><%- PrefixoAbsolutoImagem %>' + row.id + '" class="btn btn-sm btn-outline-primary"><i class="fa fa-fw fa-download"></i></a> ' : '') + '<button title="Excluir" type="button" data-excluir="1" class="btn btn-sm btn-outline-danger"><i class="fa fa-fw fa-times"></i></button>'; } },
 				{ title: "", "class": "col-min", searchable: false, orderable: false, data: "id", render: function (v, type, row) { return (row.tamanho ? '<img width="64" alt="Imagem" src="<%- root %><%- PrefixoAbsolutoIcone %>' + row.id + '" />' : ''); } },
 				{ title: "Id", "type": "number", data: "id" },
 				//<% if (usuario.admin) { %>
