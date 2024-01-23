@@ -98,6 +98,29 @@ class IndexRoute {
 		res.redirect(app.root + "/");
 	}
 
+	@app.http.post()
+	public static async clip(req: app.Request, res: app.Response) {
+		let u = await Usuario.cookie(req, res);
+		if (!u)
+			return;
+
+		if (req.body && req.body.prompt && typeof req.body.prompt === "string") {
+			try {
+				const r = await app.request.json.postObject(appsettings.comfyUICLIP, {
+					prompt: req.body.prompt
+				});
+				if (r.statusCode === 200 && typeof r.result === "number") {
+					res.json(r.result);
+					return;
+				}
+			} catch (ex: any) {
+				// Apenas ignora...
+			}
+		}
+
+		res.json("-");
+	}
+
 	@app.route.methodName("i/:id")
 	public static async baixarI(req: app.Request, res: app.Response) {
 		let u = await Usuario.cookie(req, res);
@@ -271,6 +294,9 @@ class IndexRoute {
 	@app.http.post()
 	@app.route.methodName("settings/*")
 	public static async comfyUISettingsPost(req: app.Request, res: app.Response) {
+		res.json(true);
+		// Não é mais permitido alterar as settings
+		/*
 		let u = await Usuario.cookie(req, res);
 		if (!u)
 			return;
@@ -283,6 +309,7 @@ class IndexRoute {
 		} else {
 			res.sendStatus(404).json("Não encontrado");
 		}
+		*/
 	}
 
 	@app.route.methodName("system_stats")

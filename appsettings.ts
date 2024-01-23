@@ -28,6 +28,7 @@ export = {
 		process.env.app_comfyUIAPI1 as string
 	],
 	comfyUIWSProxy: process.env.app_comfyUIWSProxy as string,
+	comfyUICLIP: process.env.app_comfyUICLIP as string,
 
 	pastaDados: process.env.app_pastaDados as string,
 	chaveImagem: process.env.app_chaveImagem as string,

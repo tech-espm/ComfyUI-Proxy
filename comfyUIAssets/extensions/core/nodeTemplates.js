@@ -325,6 +325,8 @@ class ManageTemplates extends ComfyDialog {
 	}
 }
 
+// @@@ ESPM
+/*
 app.registerExtension({
 	name: id,
 	setup() {
@@ -410,3 +412,4 @@ app.registerExtension({
 		};
 	},
 });
+*/

@@ -471,11 +471,12 @@ export const ComfyWidgets = {
 		document.body.append(fileInput);
 
 		// Create the button widget for selecting the files
-		uploadWidget = node.addWidget("button", inputName, "image", () => {
-			fileInput.click();
-		});
-		uploadWidget.label = "choose file to upload";
-		uploadWidget.serialize = false;
+		// @@@ ESPM
+		//uploadWidget = node.addWidget("button", inputName, "image", () => {
+		//	fileInput.click();
+		//});
+		//uploadWidget.label = "choose file to upload";
+		//uploadWidget.serialize = false;
 
 		// Add handler to check if an image is being dragged over our node
 		node.onDragOver = function (e) {
@@ -511,6 +512,7 @@ export const ComfyWidgets = {
 			return false;
 		}
 
-		return { widget: uploadWidget };
+		// @@@ ESPM
+		return null; // { widget: uploadWidget };
 	},
 };

@@ -426,7 +426,11 @@ export class ComfyUI {
 			}, [
 				$el("span.drag-handle"),
 				$el("span", {$: (q) => (this.queueSize = q)}),
-				$el("button.comfy-settings-btn", {textContent: "⚙️", onclick: () => this.settings.show()}),
+				$el("button.comfy-settings-btn", {
+					// @@@ ESPM
+					style: {display: "none"},
+					textContent: "⚙️", onclick: () => this.settings.show()
+				}),
 			]),
 			$el("button.comfy-queue-btn", {
 				id: "queue-button",
@@ -644,7 +648,7 @@ export class ComfyUI {
 
 					A edição de poses se baseia no projeto <a style="color: inherit;" target="_blank" href="https://github.com/space-nuko/ComfyUI-OpenPose-Editor">ComfyUI-OpenPose-Editor</a>.
 
-					A plataforma é composta pelos projetos <a style="color: inherit;" target="_blank" href="https://github.com/tech-espm/ComfyUI">ComfyUI</a>, <a style="color: inherit;" target="_blank" href="https://github.com/tech-espm/ComfyUI-Proxy">ComfyUI-Proxy</a> e <a style="color: inherit;" target="_blank" href="https://github.com/tech-espm/ComfyUI-WSProxy">ComfyUI-WSProxy</a>, todos licenciados a <a style="color: inherit;" target="_blank" href="https://github.com/tech-espm/ComfyUI-Proxy/blob/main/LICENSE">GPL-3.0</a>.</span>`);
+					A plataforma é composta pelos projetos <a style="color: inherit;" target="_blank" href="https://github.com/tech-espm/ComfyUI/tree/espm">ComfyUI</a>, <a style="color: inherit;" target="_blank" href="https://github.com/tech-espm/ComfyUI-Proxy">ComfyUI-Proxy</a>, <a style="color: inherit;" target="_blank" href="https://github.com/tech-espm/ComfyUI-WSProxy">ComfyUI-WSProxy</a> e <a style="color: inherit;" target="_blank" href="https://github.com/tech-espm/ComfyUI-CLIP">ComfyUI-CLIP</a>, todos licenciados sob a <a style="color: inherit;" target="_blank" href="https://github.com/tech-espm/ComfyUI-Proxy/blob/main/LICENSE">GPL-3.0</a>.</span>`);
 				}
 			}),
 		]);
