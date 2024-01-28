@@ -335,6 +335,71 @@ export const ComfyWidgets = {
 		let res;
 		if (multiline) {
 			res = addMultilineWidget(node, inputName, { defaultVal, ...inputData[1] }, app);
+
+			// @@@ ESPM
+			let tokens = "";
+			let ultimoTexto = "";
+			let processarDeNovo = false;
+			let processando = false;
+			const tokenWidget = node.addWidget("text", "Tokens", "", () => {
+				// Usa o callback para forçar o valor sempre para o que foi calculado
+				tokenWidget.value = tokens;
+			}, {});
+			res.widget.inputEl.addEventListener("blur", async () => {
+				if (processando) {
+					processarDeNovo = true;
+					return;
+				}
+
+				const processar = async () => {
+					processarDeNovo = false;
+
+					if (!window.clip_url) {
+						tokens = "";
+					} else {
+						const texto = res.widget.inputEl.value.normalize().trim();
+						if (ultimoTexto === texto)
+							return;
+
+						ultimoTexto = texto;
+
+						if (!texto) {
+							tokens = "0";
+						} else {
+							try {
+								processando = true;
+
+								tokens = "...";
+								tokenWidget.value = tokens;
+								app.graph.setDirtyCanvas(true);
+
+								const response = await fetch(window.clip_url, {
+									method: "POST",
+									body: JSON.stringify({ prompt: texto }),
+									headers: { "content-type": "application/json" }
+								});
+
+								if (!response.ok)
+									tokens = "Err";
+								else
+									tokens = (await response.json()).toString();
+							} catch (ex) {
+								tokens = "Err";
+							} finally {
+								processando = false;
+							}
+						}
+					}
+
+					tokenWidget.value = tokens;
+					app.graph.setDirtyCanvas(true);
+
+					if (processarDeNovo)
+						await processar();
+				};
+
+				await processar();
+			});
 		} else {
 			res = { widget: node.addWidget("text", inputName, defaultVal, () => {}, {}) };
 		}
@@ -472,11 +537,13 @@ export const ComfyWidgets = {
 
 		// Create the button widget for selecting the files
 		// @@@ ESPM
-		//uploadWidget = node.addWidget("button", inputName, "image", () => {
-		//	fileInput.click();
-		//});
-		//uploadWidget.label = "choose file to upload";
-		//uploadWidget.serialize = false;
+		return null;
+		/*
+		uploadWidget = node.addWidget("button", inputName, "image", () => {
+			fileInput.click();
+		});
+		uploadWidget.label = "choose file to upload";
+		uploadWidget.serialize = false;
 
 		// Add handler to check if an image is being dragged over our node
 		node.onDragOver = function (e) {
@@ -512,7 +579,7 @@ export const ComfyWidgets = {
 			return false;
 		}
 
-		// @@@ ESPM
-		return null; // { widget: uploadWidget };
+		return { widget: uploadWidget };
+		*/
 	},
 };
