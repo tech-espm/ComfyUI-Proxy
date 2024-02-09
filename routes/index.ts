@@ -268,6 +268,11 @@ class IndexRoute {
 		if (!u)
 			return;
 
+		if (!u.ativo) {
+			res.status(400).json("A geração de imagens está desabilitada para o usuário");
+			return;
+		}
+
 		const r = await Imagem.validarPromptECriar(req.body, u.id);
 		if (typeof r === "string") {
 			res.status(400).json(r);
