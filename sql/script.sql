@@ -33,7 +33,7 @@ CREATE TABLE usuario (
   CONSTRAINT usuario_idperfil_FK FOREIGN KEY (idperfil) REFERENCES perfil (id) ON DELETE RESTRICT ON UPDATE RESTRICT
 );
 
-INSERT INTO usuario (email, nome, idperfil, senha, token, criacao) VALUES ('admin@espm.br', 'Administrador', 1, 'NsSzgX9AXd2G85aiCOrUwAFkiEHrHYljYWpJBCfqOvKr:WD+jsEW/Dswcivs42EZBZREfm+4WaPcZHRPG5LJpD8yr', NULL, NOW());
+INSERT INTO usuario (email, nome, idperfil, ativo, origem, senha, token, criacao) VALUES ('admin@espm.br', 'Administrador', 1, 1, 'ESPM', 'NsSzgX9AXd2G85aiCOrUwAFkiEHrHYljYWpJBCfqOvKr:WD+jsEW/Dswcivs42EZBZREfm+4WaPcZHRPG5LJpD8yr', NULL, NOW());
 
 CREATE TABLE imagem (
   id bigint NOT NULL AUTO_INCREMENT,
