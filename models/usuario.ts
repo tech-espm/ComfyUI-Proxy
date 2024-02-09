@@ -14,6 +14,8 @@ interface Usuario {
 	email: string;
 	nome: string;
 	idperfil: Perfil;
+	ativo: number;
+	origem: string;
 	senha: string;
 	criacao: string;
 
@@ -37,7 +39,7 @@ class Usuario {
 			let usuario: Usuario | null = null;
 
 			await app.sql.connect(async (sql) => {
-				let rows = await sql.query("select id, email, nome, idperfil, token from usuario where id = ?", [id]);
+				let rows = await sql.query("select id, email, nome, idperfil, ativo, token from usuario where id = ? and exclusao is null", [id]);
 				let row: any;
 
 				if (!rows || !rows.length || !(row = rows[0]))
@@ -53,6 +55,7 @@ class Usuario {
 				usuario.email = row.email as string;
 				usuario.nome = row.nome as string;
 				usuario.idperfil = row.idperfil as number;
+				usuario.ativo = row.ativo as number;
 				usuario.admin = (usuario.idperfil === Perfil.Administrador);
 			});
 
@@ -74,17 +77,31 @@ class Usuario {
 		return [token, cookieStr];
 	}
 
-	public static async efetuarLogin(email: string, senha: string, res: app.Response): Promise<[string | null, Usuario | null]> {
-		if (!email || !senha)
+	public static async efetuarLogin(token: string | null, email: string | null, senha: string | null, res: app.Response): Promise<[string | null, Usuario | null]> {
+		if (token) {
+			const resposta = await app.request.json.get(appsettings.ssoToken + encodeURIComponent(token));
+			if (!resposta.success || !resposta.result)
+				return [(resposta.result && resposta.result.toString()) || ("Erro de comunicação de rede: " + resposta.statusCode), null];
+
+			const json = resposta.result;
+			if (json.erro)
+				return [json.erro, null];
+
+			email = json.dados.email;
+			senha = null;
+		} else if (!email || !senha) {
 			return ["Usuário ou senha inválidos", null];
+		}
+
+		email = (email || "").normalize().trim().toLowerCase();
+		if (email.endsWith("espm.br") && senha)
+			return ["Estudantes e funcionários da ESPM devem efetuar o login através da outra opção", null];
 
 		return await app.sql.connect(async (sql) => {
-			email = email.normalize().trim().toLowerCase();
-
-			const usuarios: Usuario[] = await sql.query("select id, nome, idperfil, senha from usuario where email = ? and exclusao is null", [email]);
+			const usuarios: Usuario[] = await sql.query("select id, nome, idperfil, ativo, senha from usuario where email = ? and exclusao is null", [email]);
 			let usuario: Usuario;
 
-			if (!usuarios || !usuarios.length || !(usuario = usuarios[0]) || !(await GeradorHash.validarSenha(senha.normalize(), usuario.senha as string)))
+			if (!usuarios || !usuarios.length || !(usuario = usuarios[0]) || (senha && !(await GeradorHash.validarSenha(senha.normalize(), usuario.senha as string))))
 				return ["Usuário ou senha inválidos", null];
 
 			let [token, cookieStr] = Usuario.gerarTokenCookie(usuario.id);
@@ -161,6 +178,11 @@ class Usuario {
 		if (isNaN(usuario.idperfil = parseInt(usuario.idperfil as any) as Perfil))
 			return "Perfil inválido";
 
+		if (!(usuario.origem = (usuario.origem || "").normalize().trim().toUpperCase()))
+			usuario.origem = "ESPM";
+		else if (usuario.origem.length > 50)
+			return "Origem inválida";
+
 		if (criacao) {
 			if (!usuario.senha || (usuario.senha = usuario.senha.normalize()).length < 6 || usuario.senha.length > 20)
 				return "Senha inválida";
@@ -171,7 +193,7 @@ class Usuario {
 
 	public static listar(): Promise<Usuario[]> {
 		return app.sql.connect(async (sql) => {
-			const lista = await sql.query("select u.id, u.email, u.nome, p.nome perfil, date_format(u.criacao, '%d/%m/%Y') criacao from usuario u inner join perfil p on p.id = u.idperfil where u.exclusao is null order by u.email asc") as Usuario[];
+			const lista = await sql.query("select u.id, u.email, u.nome, p.nome perfil, u.ativo, u.origem, date_format(u.criacao, '%d/%m/%Y') criacao from usuario u inner join perfil p on p.id = u.idperfil where u.exclusao is null order by u.email asc") as Usuario[];
 
 			return (lista || []);
 		});
@@ -179,7 +201,7 @@ class Usuario {
 
 	public static obter(id: number): Promise<Usuario | null> {
 		return app.sql.connect(async (sql) => {
-			const lista = await sql.query("select id, email, nome, idperfil, date_format(criacao, '%d/%m/%Y') criacao from usuario where id = ?", [id]) as Usuario[];
+			const lista = await sql.query("select id, email, nome, idperfil, ativo, origem, date_format(criacao, '%d/%m/%Y') criacao from usuario where id = ? and exclusao is null", [id]) as Usuario[];
 
 			return ((lista && lista[0]) || null);
 		});
@@ -192,7 +214,7 @@ class Usuario {
 
 		return app.sql.connect(async (sql) => {
 			try {
-				await sql.query("insert into usuario (email, nome, idperfil, senha, criacao) values (?, ?, ?, ?, now())", [usuario.email, usuario.nome, usuario.idperfil, await GeradorHash.criarHash(usuario.senha)]);
+				await sql.query("insert into usuario (email, nome, idperfil, ativo, origem, senha, criacao) values (?, ?, ?, 1, ?, ?, now())", [usuario.email, usuario.nome, usuario.idperfil, usuario.origem, await GeradorHash.criarHash(usuario.senha)]);
 
 				usuario.id = await sql.scalar("select last_insert_id()") as number;
 			} catch (ex: any) {
@@ -232,7 +254,7 @@ class Usuario {
 			return "Não é possível editar o usuário administrador principal";
 
 		return app.sql.connect(async (sql) => {
-			await sql.query("update usuario set nome = ?, idperfil = ? where id = ?", [usuario.nome, usuario.idperfil, usuario.id]);
+			await sql.query("update usuario set nome = ?, idperfil = ?, origem = ? where id = ? and exclusao is null", [usuario.nome, usuario.idperfil, usuario.origem, usuario.id]);
 
 			return (sql.affectedRows ? null : "Usuário não encontrado");
 		});
@@ -247,7 +269,15 @@ class Usuario {
 
 			// Utilizar substr(email, instr(email, ':') + 1) para remover o prefixo, caso precise desfazer a exclusão (caso
 			// não exista o prefixo, instr() vai retornar 0, que, com o + 1, faz o substr() retornar a própria string inteira)
-			await sql.query("update usuario set email = concat('@', id, ':', email), token = null, exclusao = ? where id = ?", [agora, id]);
+			await sql.query("update usuario set email = concat('@', id, ':', email), token = null, exclusao = ? where id = ? and exclusao is null", [agora, id]);
+
+			return (sql.affectedRows ? null : "Usuário não encontrado");
+		});
+	}
+
+	public static async alterarAtivacao(id: number, ativo: number): Promise<string | null> {
+		return app.sql.connect(async (sql) => {
+			await sql.query("update usuario set ativo = ? where id = ? and exclusao is null", [ativo ? 1 : 0, id]);
 
 			return (sql.affectedRows ? null : "Usuário não encontrado");
 		});
@@ -285,7 +315,7 @@ class Usuario {
 			await Email.enviar({
 				from: appsettings.mailFromGeral,
 				to: email,
-				subject: "ESPM ComfyUI - Redefinição de senha",
+				subject: "ESPM IAGen - Redefinição de senha",
 				html: html
 			});
 

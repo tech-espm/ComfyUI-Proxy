@@ -88,6 +88,28 @@ class UsuarioApiRoute {
 		res.sendStatus(204);
 	}
 
+	public static async alterarAtivacao(req: app.Request, res: app.Response) {
+		const u = await Usuario.cookie(req, res, true);
+		if (!u)
+			return;
+
+		const id = parseInt(req.query["id"] as string);
+
+		if (isNaN(id)) {
+			res.status(400).json("Id inválido");
+			return;
+		}
+
+		const erro = await Usuario.alterarAtivacao(id, parseInt(req.query["ativo"] as string));
+
+		if (erro) {
+			res.status(400).json(erro);
+			return;
+		}
+
+		res.sendStatus(204);
+	}
+
 	@app.http.post()
 	public static async redefinirSenhaExterno(req: app.Request, res: app.Response) {
 		const u = await Usuario.cookie(req);

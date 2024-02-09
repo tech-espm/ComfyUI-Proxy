@@ -18,6 +18,8 @@ CREATE TABLE usuario (
   email varchar(100) NOT NULL,
   nome varchar(100) NOT NULL,
   idperfil int NOT NULL,
+  ativo tinyint NOT NULL,
+  origem varchar(50) NOT NULL,
   senha varchar(100) NOT NULL,
   token char(32) DEFAULT NULL,
   exclusao datetime NULL,

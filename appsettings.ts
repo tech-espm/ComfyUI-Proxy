@@ -47,5 +47,7 @@ export = {
 
 	usuarioSenhaPadrao: process.env.app_usuarioSenhaPadrao,
 	usuarioHashSenhaPadrao: process.env.app_usuarioHashSenhaPadrao,
-	usuarioHashId: parseInt(process.env.app_usuarioHashId as string, 16)
+	usuarioHashId: parseInt(process.env.app_usuarioHashId as string, 16),
+	ssoRedir: process.env.app_ssoRedir as string,
+	ssoToken: process.env.app_ssoToken as string
 };

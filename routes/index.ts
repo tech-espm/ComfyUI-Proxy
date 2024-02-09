@@ -25,6 +25,8 @@ class IndexRoute {
 		let u = await Usuario.cookie(req);
 		if (!u)
 			res.redirect(app.root + "/login");
+		else if (!u.ativo)
+			res.render("index/erro", { layout: "layout-externo", mensagem: "A geração de imagens está desabilitada para o usuário", erro: null });
 		else
 			res.render("index/comfyUI", {
 				layout: "layout-vazio",
@@ -40,19 +42,21 @@ class IndexRoute {
 		if (!u) {
 			let mensagem: string | null = null;
 	
-			if (req.body.email || req.body.senha) {
-				[mensagem, u] = await Usuario.efetuarLogin(req.body.email as string, req.body.senha as string, res);
+			if (req.body.email || req.body.senha || req.query.token) {
+				[mensagem, u] = await Usuario.efetuarLogin(req.query.token as string, req.body.email as string, req.body.senha as string, res);
 				if (mensagem)
 					res.render("index/login", {
 						layout: "layout-externo",
-						mensagem: mensagem
+						mensagem: mensagem,
+						ssoRedir: appsettings.ssoRedir
 					});
 				else
 					res.redirect(app.root + "/");
 			} else {
 				res.render("index/login", {
 					layout: "layout-externo",
-					mensagem: null
+					mensagem: null,
+					ssoRedir: appsettings.ssoRedir
 				});
 			}
 		} else {

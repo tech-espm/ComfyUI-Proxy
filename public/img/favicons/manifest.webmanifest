@@ -1,15 +1,15 @@
 {
-	"name": "ESPM ComfyUI",
-	"short_name": "ESPM ComfyUI",
-	"start_url": "/comfyui",
-	"id": "/comfyui",
+	"name": "ESPM IAGen",
+	"short_name": "ESPM IAGen",
+	"start_url": "/iagen",
+	"id": "/iagen",
 	"dir": "ltr",
 	"lang": "pt-BR",
 	"orientation": "portrait-primary",
 	"display": "standalone",
 	"background_color": "#f8f9fc",
 	"theme_color": "#00275d",
-	"description": "ESPM ComfyUI",
+	"description": "ESPM IAGen",
 	"icons": [
 		{
 			"src": "favicon-36x36.png",

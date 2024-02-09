@@ -5,7 +5,7 @@
 			<div class="mb-4 text-center">
 				<img style="width: 100%; max-width: 250px;" alt="Logo ESPM" src="<%- staticRoot %>/img/logo.png" />
 			</div>
-			<h1 class="h3 mb-4 text-center">ESPM ComfyUI</h1>
+			<h1 class="h3 mb-4 text-center">ESPM IAGen</h1>
 			<form id="form" method="POST" action="<%- root %>/login">
 				<% if (mensagem) { %>
 				<div class="alert alert-danger"><%= mensagem %></div>
@@ -24,6 +24,19 @@
 				<button type="submit" class="btn btn-primary btn-block">
 					Login
 				</button>
+
+				<hr/>
+
+				<a href="<%- ssoRedir %>" class="btn btn-primary btn-user btn-block">
+					Estudante ou funcionário da ESPM?
+					<br/>
+					<br/>
+					Clique aqui para fazer login!
+					<br/>
+					<br/>
+					Não é necessário preencher os campos acima 😊
+				</a>
+
 			</form>
 			<hr/>
 			<div class="text-center">

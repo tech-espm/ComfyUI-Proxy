@@ -2,6 +2,7 @@
 import ajustarHeaderParaCache = require("../utils/ajustarHeaderParaCache");
 import appsettings = require("../appsettings");
 import DataUtil = require("../utils/dataUtil");
+import { Grafo } from "./grafo";
 
 interface Imagem {
 	id: number;
@@ -35,9 +36,12 @@ class Imagem {
 	}
 
 	public static async validarPromptECriar(prompt: any, idusuario: number): Promise<string | number> {
-		// @@@ Validar o prompt
 		if (!prompt || !prompt.extra_data || !prompt.extra_data.extra_pnginfo || !prompt.extra_data.extra_pnginfo.workflow)
 			return "Metadados faltando";
+
+		const grafo = Grafo.extrair(prompt.extra_data.extra_pnginfo.workflow.nodes);
+		if (typeof grafo === "string")
+			return grafo;
 
 		return app.sql.connect(async (sql) => {
 			const id = await sql.scalar("select id from imagem where envio is null and idusuario = ? limit 1", [idusuario]) as number;
