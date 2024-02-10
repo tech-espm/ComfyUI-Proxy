@@ -69,30 +69,66 @@ export class Grafo {
 		for (let i = nosOriginais.length - 1; i >= 0; i--) {
 			const noOriginal = nosOriginais[i];
 
-			if (noOriginal.type === "EmptyLatentImage" && noOriginal.widgets_values) {
-				if (typeof noOriginal.widgets_values[0] !== "number")
-					return "Width inválida";
-				if (noOriginal.widgets_values[0] < 8)
-					return "Width menor do que 8";
-				if (noOriginal.widgets_values[0] > 2048)
-					return "Width maior do que 2048";
-				if (noOriginal.widgets_values[0] & 3)
-					return "Width não é um múltiplo de 8";
+			if (noOriginal.widgets_values) {
+				switch (noOriginal.type) {
+					case "EmptyLatentImage":
+						if (typeof noOriginal.widgets_values[0] !== "number" || isNaN(noOriginal.widgets_values[0]))
+							return "Width inválida";
+						if (noOriginal.widgets_values[0] < 8)
+							return "Width menor do que 8";
+						if (noOriginal.widgets_values[0] > 2048)
+							return "Width maior do que 2048";
+						if (noOriginal.widgets_values[0] & 3)
+							return "Width não é um múltiplo de 8";
 
-				if (typeof noOriginal.widgets_values[1] !== "number")
-					return "Height inválida";
-				if (noOriginal.widgets_values[1] < 8)
-					return "Height menor do que 8";
-				if (noOriginal.widgets_values[1] > 2048)
-					return "Height maior do que 2048";
-				if (noOriginal.widgets_values[1] & 3)
-					return "Height não é um múltiplo de 8";
+						if (typeof noOriginal.widgets_values[1] !== "number" || isNaN(noOriginal.widgets_values[1]))
+							return "Height inválida";
+						if (noOriginal.widgets_values[1] < 8)
+							return "Height menor do que 8";
+						if (noOriginal.widgets_values[1] > 2048)
+							return "Height maior do que 2048";
+						if (noOriginal.widgets_values[1] & 3)
+							return "Height não é um múltiplo de 8";
 
-				if ((noOriginal.widgets_values[0] * noOriginal.widgets_values[1]) > (1024 * 2048))
-					return "O produto de width x height não pode ser maior do que " + (1024 * 2048);
+						if ((noOriginal.widgets_values[0] * noOriginal.widgets_values[1]) > (1024 * 2048))
+							return "O produto de width x height não pode ser maior do que " + (1024 * 2048);
 
-				if (typeof noOriginal.widgets_values[2] !== "number" || noOriginal.widgets_values[2] !== 1)
-					return "batch_size diferente de 1";
+						if (typeof noOriginal.widgets_values[2] !== "number" || isNaN(noOriginal.widgets_values[2]) || noOriginal.widgets_values[2] !== 1)
+							return "batch_size diferente de 1";
+						break;
+
+					case "KSampler":
+						if (typeof noOriginal.widgets_values[0] !== "number" || isNaN(noOriginal.widgets_values[0]))
+							return "Seed inválida";
+						if (noOriginal.widgets_values[0] < 0)
+							return "Seed deve ser maior ou igual a 0";
+						if (noOriginal.widgets_values[0] > Number.MAX_SAFE_INTEGER)
+							return "Seed deve ser menor ou igual a " + Number.MAX_SAFE_INTEGER;
+
+						if (typeof noOriginal.widgets_values[2] !== "number" || isNaN(noOriginal.widgets_values[2]))
+							return "Steps inválidos";
+						if (noOriginal.widgets_values[2] < 1)
+							return "Steps deve ser maior ou igual a 1";
+						if (noOriginal.widgets_values[2] > 25)
+							return "Steps deve ser menor ou igual a 25";
+						break;
+
+					case "KSamplerAdvanced":
+						if (typeof noOriginal.widgets_values[1] !== "number" || isNaN(noOriginal.widgets_values[1]))
+							return "Seed inválida";
+						if (noOriginal.widgets_values[1] < 0)
+							return "Seed deve ser maior ou igual a 0";
+						if (noOriginal.widgets_values[1] > Number.MAX_SAFE_INTEGER)
+							return "Seed deve ser menor ou igual a " + Number.MAX_SAFE_INTEGER;
+
+						if (typeof noOriginal.widgets_values[3] !== "number" || isNaN(noOriginal.widgets_values[3]))
+							return "Steps inválidos";
+						if (noOriginal.widgets_values[3] < 1)
+							return "Steps deve ser maior ou igual a 1";
+						if (noOriginal.widgets_values[3] > 25)
+							return "Steps deve ser menor ou igual a 25";
+						break;
+				}
 			}
 
 			const no = new No(noOriginal.id, noOriginal.type, (noOriginal.type === "CLIPTextEncode" && noOriginal.widgets_values && noOriginal.widgets_values[0]) || null);
