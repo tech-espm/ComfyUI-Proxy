@@ -284,8 +284,11 @@ class Usuario {
 	}
 
 	public static async redefinirSenhaExterno(email: string): Promise<string | null> {
-		if (!email || !(email = email.normalize().trim()))
+		if (!email || !(email = email.normalize().trim().toLowerCase()))
 			return "E-mail inválido";
+
+		if (email.endsWith("espm.br"))
+			return "Estudantes e funcionários da ESPM não podem redefinir sua senha por meio dessa opção";
 
 		return app.sql.connect(async (sql) => {
 			const usuarios: { id: number, nome: string }[] = await sql.query("select id, nome from usuario where email = ?", [email]);

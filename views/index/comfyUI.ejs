@@ -4,7 +4,7 @@
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 
-		<base href="<%- urlSite %><%- root %>/comfyUIAssets/" />
+		<base href="<%- urlSite %>/comfyUIAssets/" />
 
 		<%- include("../favicons") %>
 
@@ -18,7 +18,7 @@
 			"use strict";
 			window.usuario = <%- JSON.stringify(usuario) %>;
 			window.api_base = "<%- root %>";
-			window.extensions_base = "<%- urlSite %><%- root %>/comfyUIAssets";
+			window.extensions_base = "<%- urlSite %>/comfyUIAssets";
 			window.ws_base = "<%- urlWSProxy %>";
 			window.clip_url = "<%- root %>/clip";
 			//localStorage.setItem("Comfy.userId", "<%- usuario.email %>");

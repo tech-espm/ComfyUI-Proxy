@@ -16,6 +16,12 @@
 
 <hr />
 
+<% if (usuario.email.endsWith("espm.br")) { %>
+
+<p class="text-center mb-0">Para alterar a senha, por favor, acesse o próprio sistema da ESPM.</p>
+
+<% } else { %>
+
 <p>Para alterar a senha atual, por favor, preencha todos os campos abaixo:</p>
 
 <div class="row">
@@ -40,6 +46,8 @@
 		</div>
 	</div>
 </div>
+
+<% } %>
 
 <%- contentFor("scripts") %>
 <script type="text/javascript">
