@@ -1,8 +1,8 @@
 {
 	"name": "ESPM IAGen",
 	"short_name": "ESPM IAGen",
-	"start_url": "/iagen",
-	"id": "/iagen",
+	"start_url": "/",
+	"id": "/",
 	"dir": "ltr",
 	"lang": "pt-BR",
 	"orientation": "portrait-primary",
