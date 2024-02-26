@@ -636,11 +636,23 @@ export class ComfyUI {
 
 					Os modelos de IA utilizados dentro da plataforma são gratuitos, publicamente disponíveis para download, e de responsabilidade dos respectivos autores.
 
-					A ESPM não se responsabiliza por qualquer tipo de imagem gerada contendo conteúdo sensível, inapropriado, censurado, enviesado, ofensivo, falso, violento, que infrinja alguma lei ou direito autoral, ou de qualquer outra natureza que possa ser inadequada para alguma faixa etária ou que seja ofensivo a qualquer pessoa.
+					A ESPM <b>não se responsabiliza</b> por qualquer tipo de imagem gerada contendo conteúdo sensível, inapropriado, censurado, enviesado, ofensivo, falso, violento, que infrinja alguma lei ou direito autoral, ou de qualquer outra natureza que possa ser inadequada para alguma faixa etária ou que seja ofensivo a qualquer pessoa.
 
 					Todas as imagens geradas por meio da plataforma são armazenadas, juntamente com seus prompts, ficando associadas aos usuários que as geraram.
 
 					<b>Ao utilizar a plataforma você concorda que leu e que esteja de acordo com tudo descrito aqui</b>.
+
+					<hr />
+
+					<b>MODELOS DISPONIBILIZADOS</b>
+
+					artium_v20 - <a style="color: inherit;" target="_blank" href="https://civitai.com/models/216439">https://civitai.com/models/216439</a>
+
+					dreamshaperXL_turboDpmppSDE - <a style="color: inherit;" target="_blank" href="https://civitai.com/models/112902">https://civitai.com/models/112902</a>
+
+					juggernautXL_v7Rundiffusion - <a style="color: inherit;" target="_blank" href="https://civitai.com/models/133005">https://civitai.com/models/133005</a>
+
+					realvisxlV30Turbo_v30Bakedvae - <a style="color: inherit;" target="_blank" href="https://civitai.com/models/139562">https://civitai.com/models/139562</a>
 
 					<hr />
 

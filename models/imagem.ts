@@ -46,7 +46,7 @@ class Imagem {
 		return app.sql.connect(async (sql) => {
 			const id = await sql.scalar("select id from imagem where envio is null and idusuario = ? limit 1", [idusuario]) as number;
 			if (id)
-				return `Sua imagem anterior, com id ${id}, ainda não foi gerada. Se ela ainda não começou a ser processada, por favor, exclua ela antes de gerar uma nova imagem.`;
+				return `Sua imagem anterior, com id ${id}, ainda não foi gerada. Se ela ainda não começou a ser processada, ou se ocorreu algum erro no processo e ela já não está mais na fila, por favor, exclua essa imagem pendente antes de gerar uma nova imagem.`;
 
 			try {
 				await sql.query("insert into imagem (idusuario, tamanho, criacao, workflow) values (?, 0, ?, ?)", [idusuario, DataUtil.horarioDeBrasiliaISOComHorario(), JSON.stringify(prompt.extra_data.extra_pnginfo.workflow)]);
