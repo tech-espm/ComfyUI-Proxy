@@ -221,17 +221,17 @@ class ComfyList {
 							name: "Delete",
 							cb: () => api.deleteItem(this.#type, item.prompt[1]),
 						};
-						return $el("div", {textContent: item.prompt[0] + ": "}, [
-							$el("button", {
-								textContent: "Load",
-								onclick: async () => {
-									await app.loadGraphData(item.prompt[3].extra_pnginfo.workflow);
-									if (item.outputs) {
-										app.nodeOutputs = item.outputs;
-									}
-								},
-							}),
-							// @@@ ESPM
+						// @@@ ESPM
+						return $el("div", {textContent: item.prompt[0]}, [
+							//$el("button", {
+							//	textContent: "Load",
+							//	onclick: async () => {
+							//		await app.loadGraphData(item.prompt[3].extra_pnginfo.workflow);
+							//		if (item.outputs) {
+							//			app.nodeOutputs = item.outputs;
+							//		}
+							//	},
+							//}),
 							//$el("button", {
 							//	textContent: removeAction.name,
 							//	onclick: async () => {
