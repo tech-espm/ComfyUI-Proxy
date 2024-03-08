@@ -98,7 +98,7 @@
 						JsonWebApi.delete("<%- root %>/api/imagem/excluir", function (response) {
 							if (response.success) {
 								Swal.success("Imagem excluída com sucesso! " + emoji.happy);
-								tabela.row(trClicada).remove().draw();
+								tabela.row(trClicada).remove().draw("page");
 							} else {
 								Swal.error(response.value + " " + emoji.sad);
 							}
