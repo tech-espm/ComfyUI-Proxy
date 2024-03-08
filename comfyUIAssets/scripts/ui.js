@@ -652,7 +652,11 @@ export class ComfyUI {
 
 					juggernautXL_v7Rundiffusion - <a style="color: inherit;" target="_blank" href="https://civitai.com/models/133005">https://civitai.com/models/133005</a>
 
+					minecraft - <a style="color: inherit;" target="_blank" href="https://civitai.com/models/210380">https://civitai.com/models/210380</a>
+
 					realvisxlV30Turbo_v30Bakedvae - <a style="color: inherit;" target="_blank" href="https://civitai.com/models/139562">https://civitai.com/models/139562</a>
+
+					tamarinXL_v10 - <a style="color: inherit;" target="_blank" href="https://civitai.com/models/235746">https://civitai.com/models/235746</a>
 
 					<hr />
 
