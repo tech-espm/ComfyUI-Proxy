@@ -19,6 +19,8 @@ class Imagem {
 	public static readonly PrefixoAbsolutoImagem = "/p/";
 	private static readonly CaminhoRelativoImagem = appsettings.pastaDados + "/p/";
 
+	private static readonly LimitePorUsuario = 150;
+
 	private static async tentarOperacao<T>(operacao: () => Promise<T>, vezes: number): Promise<T> {
 		try {
 			return await operacao();
@@ -47,6 +49,10 @@ class Imagem {
 			const id = await sql.scalar("select id from imagem where envio is null and idusuario = ? limit 1", [idusuario]) as number;
 			if (id)
 				return `Sua imagem anterior, com id ${id}, ainda não foi gerada. Se ela ainda não começou a ser processada, ou se ocorreu algum erro no processo e ela já não está mais na fila, por favor, exclua essa imagem pendente antes de gerar uma nova imagem.`;
+
+			const total = await sql.scalar("select count(*) from imagem where idusuario = ?", [idusuario]) as number;
+			if (total >= Imagem.LimitePorUsuario)
+				return `Você possui um total de ${total} imagens geradas, mas o limite é de ${Imagem.LimitePorUsuario}. Por favor, salve suas imagens em um dispositivo e exclua algumas do sistema para poder prosseguir com novas gerações.`;
 
 			try {
 				await sql.query("insert into imagem (idusuario, tamanho, criacao, workflow) values (?, 0, ?, ?)", [idusuario, DataUtil.horarioDeBrasiliaISOComHorario(), JSON.stringify(prompt.extra_data.extra_pnginfo.workflow)]);
