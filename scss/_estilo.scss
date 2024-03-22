@@ -1,5 +1,9 @@
 // Customizações extras :)
 
+.quebra-linha-com-quebra-espaco {
+	white-space: pre-wrap !important;
+}
+
 .quebra-linha-sem-quebra-espaco {
 	white-space: pre !important;
 }

@@ -289,6 +289,53 @@ class ComfyList {
 	}
 }
 
+// @@@ ESPM
+window.loadPrompt = function (positivePrompt, negativePrompt) {
+	try {
+		let sampler = null;
+
+		for (let i = 0; i < 2; i++) {
+			const nodeType = (i ? "KSamplerAdvanced" : "KSampler");
+			sampler = app?.graph?._nodes?.find(n => n.type == nodeType);
+			if (!sampler || !sampler.inputs[1] || !sampler.inputs[2] || (typeof sampler.inputs[1].link) !== "number" || (typeof sampler.inputs[2].link) !== "number" || !app.graph.links) {
+				if (i) {
+					app.ui.dialog.show('<span style="color:var(--input-text)">Não foi possível localizar um nó do tipo KSampler ou KSampler (Advanced) com as entradas positiva e negativa conectadas!</span>');
+					return;
+				}
+			} else {
+				break;
+			}
+		}
+
+		const positiveLink = app.graph.links[sampler.inputs[1].link];
+		const negativeLink = app.graph.links[sampler.inputs[2].link];
+
+		let positiveNode;
+		if (!positiveLink || !(positiveNode = app.graph._nodes.find(n => n.id == positiveLink.origin_id))?.widgets[0]) {
+			app.ui.dialog.show('<span style="color:var(--input-text)">Não foi possível localizar um nó conectado à entrada positiva do sampler!</span>');
+			return;
+		}
+
+		let negativeNode;
+		if (!negativeLink || !(negativeNode = app.graph._nodes.find(n => n.id == negativeLink.origin_id))?.widgets[0]) {
+			app.ui.dialog.show('<span style="color:var(--input-text)">Não foi possível localizar um nó conectado à entrada negativa do sampler!</span>');
+			return;
+		}
+
+		positiveNode.widgets[0].value = positivePrompt;
+		if (positiveNode.widgets[1])
+			positiveNode.widgets[1].value = "-";
+
+		negativeNode.widgets[0].value = negativePrompt;
+		if (negativeNode.widgets[1])
+			negativeNode.widgets[1].value = "-";
+
+		app.ui.dialog.close();
+	} catch (ex) {
+		app.ui.dialog.show(`<span style="color:var(--input-text)">${ex.message}</span>`);
+	}
+};
+
 export class ComfyUI {
 	constructor(app) {
 		this.app = app;
@@ -619,11 +666,115 @@ export class ComfyUI {
 
 			// @@@ ESPM
 			$el("div"),
+
+			$el("button", {
+				textContent: "Dicas e Estilos", onclick: async () => {
+					app.ui.dialog.show(`<span style="color:var(--input-text)"><b>DICAS GERAIS</b>
+
+					Procure utilizar as seguintes combinações de largura x altura para gerar as imagens da melhor forma possível:
+
+					- 1024 x 1024 (quadrado)
+					- 896 x 1152 (retrato)
+					- 1152 x 896 (paisagem)
+					- 1024 x 2048 (retrato ultra wide - evite utilizar com humanos!)
+					- 2048 x 1024 (paisagem ultra wide - evite utilizar com humanos!)
+
+					<hr />
+					<b>CONFIGURAÇÕES IDEAIS POR MODELO</b>
+
+					artium_v20
+					juggernautXL_v7Rundiffusion
+					omnium_v11
+					realvisxlV30Turbo_v30Bakedvae
+					realvisxlV40_v40Bakedvae
+					tamarinXL_v10
+					- steps: 20 ... 40 (mas o sistema limita em 25, por desempenho 😅)
+					- sampler_name: dpmpp_2m (ou outros samplers)
+					- scheduler: karras (ou outros schedulers)
+
+					dreamshaperXL_turboDpmppSDE
+					- cfg: 2
+					- steps: 4 ... 8
+					- sampler_name: dpmpp_sde
+					- scheduler: karras
+
+					<hr />
+					<b>NÃO SABE POR ONDE COMEÇAR O PROMPT?</b>
+
+					Experimente utilizar alguns dos prompts abaixo como ponto de partida! 😊
+
+					Basta clicar nos botões para preencher os campos dos prompts positivo e negativo com as sugestões.
+
+					Em seguida, troque a palavra PROMPT pela expressão desejada (Cuidado para não excluir o ponto final que vem depois da palavra!).
+
+					Por fim, edite o restante dos prompts positivo e negativo conforme desejar.
+
+					Cuidado! Nem todo prompt/assunto funciona bem com todo estilo! É preciso testar! 😅
+
+					<b>ESTILOS PRINCIPAIS</b>
+
+					<div style="display: flex; flex-wrap: wrap; flex-direction: row; justify-content: space-evenly; align-items: stretch;">
+						<button type="button" style="display: block; width: 30%; word-break: break-all;" onclick="loadPrompt('professional 3d model PROMPT. octane render, highly detailed, volumetric, dramatic lighting', 'ugly, deformed, noisy, low poly, blurry, painting')">3D Model</button>
+						<button type="button" style="display: block; width: 30%; word-break: break-all;" onclick="loadPrompt('analog film photo PROMPT. faded film, desaturated, 35mm photo, grainy, vignette, vintage, Kodachrome, Lomography, stained, highly detailed, found footage', 'painting, drawing, illustration, glitch, deformed, mutated, cross-eyed, ugly, disfigured')">Analog Film</button>
+						<button type="button" style="display: block; width: 30%; word-break: break-all;" onclick="loadPrompt('anime artwork PROMPT. anime style, key visual, vibrant, studio anime, highly detailed', 'photo, deformed, black and white, realism, disfigured, low contrast')">Anime</button>
+						<button type="button" style="display: block; width: 30%; word-break: break-all;" onclick="loadPrompt('PROMPT. candy land style, whimsical fantasy landscape art, japanese pop surrealism, colorfull digital fantasy art, made of candy and lollypops, whimsical and dreamy', 'lowres, low resolution, bad quality, ugly, deformed, noisy, blurry')">Candy Land</button>
+						<button type="button" style="display: block; width: 30%; word-break: break-all;" onclick="loadPrompt('cinematic film still PROMPT. shallow depth of field, vignette, highly detailed, high budget Hollywood movie, bokeh, cinemascope, moody, epic, gorgeous, film grain, grainy', 'anime, cartoon, graphic, text, painting, crayon, graphite, abstract, glitch, deformed, mutated, ugly, disfigured')">Cinematic</button>
+						<button type="button" style="display: block; width: 30%; word-break: break-all;" onclick="loadPrompt('comic PROMPT. graphic illustration, comic art, graphic novel art, vibrant, highly detailed', 'photograph, deformed, glitch, noisy, realistic, stock photo')">Comic Book</button>
+						<button type="button" style="display: block; width: 30%; word-break: break-all;" onclick="loadPrompt('play-doh style PROMPT. sculpture, clay art, centered composition, Claymation', 'sloppy, messy, grainy, highly detailed, ultra textured, photo')">Craft Clay</button>
+						<button type="button" style="display: block; width: 30%; word-break: break-all;" onclick="loadPrompt('concept art PROMPT. digital artwork, illustrative, painterly, matte painting, highly detailed', 'photo, photorealistic, realism, ugly')">Digital Art</button>
+						<button type="button" style="display: block; width: 30%; word-break: break-all;" onclick="loadPrompt('PROMPT. disney animation, disney splash art, disney color palette, disney renaissance film, disney pixar movie still, disney art style, disney concept art, wonderful compositions, pixar, disney concept artists, 2d character design', 'lowres, low resolution, bad quality, ugly, deformed, noisy, blurry')">Disney</button>
+						<button type="button" style="display: block; width: 30%; word-break: break-all;" onclick="loadPrompt('breathtaking PROMPT. award-winning, professional, highly detailed', 'ugly, deformed, noisy, blurry, distorted, grainy')">Enhance</button>
+						<button type="button" style="display: block; width: 30%; word-break: break-all;" onclick="loadPrompt('ethereal fantasy concept art of PROMPT. magnificent, celestial, ethereal, painterly, epic, majestic, magical, fantasy art, cover art, dreamy', 'photographic, realistic, realism, 35mm film, dslr, cropped, frame, text, deformed, glitch, noise, noisy, off-center, deformed, cross-eyed, closed eyes, bad anatomy, ugly, disfigured, sloppy, duplicate, mutated, black and white')">Fantasy Art</button>
+						<button type="button" style="display: block; width: 30%; word-break: break-all;" onclick="loadPrompt('isometric style PROMPT. vibrant, beautiful, crisp, detailed, ultra detailed, intricate', 'deformed, mutated, ugly, disfigured, blur, blurry, noise, noisy, realistic, photographic')">Isometric</button>
+						<button type="button" style="display: block; width: 30%; word-break: break-all;" onclick="loadPrompt('line art drawing PROMPT. professional, sleek, modern, minimalist, graphic, line art, vector graphics', 'anime, photorealistic, 35mm film, deformed, glitch, blurry, noisy, off-center, deformed, cross-eyed, closed eyes, bad anatomy, ugly, disfigured, mutated, realism, realistic, impressionism, expressionism, oil, acrylic')">Line Art</button>
+						<button type="button" style="display: block; width: 30%; word-break: break-all;" onclick="loadPrompt('low-poly style PROMPT. low-poly game art, polygon mesh, jagged, blocky, wireframe edges, centered composition', 'noisy, sloppy, messy, grainy, highly detailed, ultra textured, photo')">Lowpoly</button>
+						<button type="button" style="display: block; width: 30%; word-break: break-all;" onclick="loadPrompt('PROMPT. minecraft build, style of minecraft, pixel style, 8 bit, epic, cinematic, screenshot from minecraft, detailed natural lighting, minecraft gameplay, mojang, minecraft mods, minecraft in real life, blocky like minecraft', 'lowres, low resolution, bad quality, ugly, deformed, noisy, blurry')">Minecraft</button>
+						<button type="button" style="display: block; width: 30%; word-break: break-all;" onclick="loadPrompt('neonpunk style PROMPT. cyberpunk, vaporwave, neon, vibes, vibrant, stunningly beautiful, crisp, detailed, sleek, ultramodern, magenta highlights, dark purple shadows, high contrast, cinematic, ultra detailed, intricate, professional', 'painting, drawing, illustration, glitch, deformed, mutated, cross-eyed, ugly, disfigured')">Neonpunk</button>
+						<button type="button" style="display: block; width: 30%; word-break: break-all;" onclick="loadPrompt('origami style PROMPT. paper art, pleated paper, folded, origami art, pleats, cut and fold, centered composition', 'noisy, sloppy, messy, grainy, highly detailed, ultra textured, photo')">Origami</button>
+						<button type="button" style="display: block; width: 30%; word-break: break-all;" onclick="loadPrompt('cinematic photo PROMPT. 35mm photograph, film, bokeh, professional, 4k, highly detailed', 'drawing, painting, crayon, sketch, graphite, impressionist, noisy, blurry, soft, deformed, ugly')">Photographic</button>
+						<button type="button" style="display: block; width: 30%; word-break: break-all;" onclick="loadPrompt('pixel-art PROMPT. low-res, blocky, pixel art style, 8-bit graphics', 'sloppy, messy, blurry, noisy, highly detailed, ultra textured, photo, realistic')">Pixel Art</button>
+						<button type="button" style="display: block; width: 30%; word-break: break-all;" onclick="loadPrompt('PROMPT. psychedelic painting, psychedelic dripping colors, colorful detailed projections, android jones and chris dyer, psychedelic vibrant colors, intricate psychedelic patterns, psychedelic visuals, hallucinatory art', 'lowres, low resolution, bad quality, ugly, deformed, noisy, blurry')">Psychedelic</button>
+						<button type="button" style="display: block; width: 30%; word-break: break-all;" onclick="loadPrompt('texture PROMPT. top down, close-up', 'ugly, deformed, noisy, blurry')">Texture</button>
+					</div>
+					<b>ESTILOS ADICIONAIS</b>
+
+					<div style="display: flex; flex-wrap: wrap; flex-direction: row; justify-content: space-evenly; align-items: stretch;">
+						<button type="button" style="display: block; width: 30%; word-break: break-all;" onclick="loadPrompt('PROMPT. amazonian cave, landscape, jungle, waterfall, moss-covered ancient ruins, Dramatic lighting and intense colors, mesmerizing details of the environment and breathtaking atmosphere', 'lowres, low resolution, bad quality, ugly, deformed, noisy, blurry')">Amazonian</button>
+						<button type="button" style="display: block; width: 30%; word-break: break-all;" onclick="loadPrompt('PROMPT. clay animation, as a claymation character, claymation style, animation key shot, plasticine, clay animation, stopmotion animation, aardman character design, plasticine models', 'lowres, low resolution, bad quality, ugly, deformed, noisy, blurry')">Claymation</button>
+						<button type="button" style="display: block; width: 30%; word-break: break-all;" onclick="loadPrompt('PROMPT. sci-fi world, cybernetic civilizations, peter gric and dan mumford, brutalist dark futuristic, dystopian brutalist atmosphere, dark dystopian world, cinematic 8k, end of the world, doomsday', 'lowres, low resolution, bad quality, ugly, deformed, noisy, blurry')">Dystopian</button>
+						<button type="button" style="display: block; width: 30%; word-break: break-all;" onclick="loadPrompt('PROMPT. elven lifestyle, photoreal, realistic, 32k quality, crafted by Elves and engraved in copper, elven fantasy land, hyper detailed', 'lowres, low resolution, bad quality, ugly, deformed, noisy, blurry')">Elven</button>
+						<button type="button" style="display: block; width: 30%; word-break: break-all;" onclick="loadPrompt('PROMPT. fire elements, fantasy, fire, lava, striking. A majestic composition with fire elements, fire and ashes surrounding, highly detailed and realistic, cinematic lighting', 'lowres, low resolution, bad quality, ugly, deformed, noisy, blurry')">Fire<br/>Bender</button>
+						<button type="button" style="display: block; width: 30%; word-break: break-all;" onclick="loadPrompt('PROMPT. forestpunk, vibrant, HDRI, organic motifs and pollen in the air, bold vibrant colors and textures, spectacular sparkling rays, photorealistic quality with Hasselblad', 'lowres, low resolution, bad quality, ugly, deformed, noisy, blurry')">Forestpunk</button>
+						<button type="button" style="display: block; width: 30%; word-break: break-all;" onclick="loadPrompt('PROMPT. inside glass ball, translucent sphere, cgsociety 9, glass orb, behance, polished, beautiful digital artwork, exquisite digital art, in a short round glass vase, octane render', 'lowres, low resolution, bad quality, ugly, deformed, noisy, blurry')">Glass<br/>Ball</button>
+						<button type="button" style="display: block; width: 30%; word-break: break-all;" onclick="loadPrompt('PROMPT. gta iv art style, gta art, gta loading screen art, gta chinatowon art style, gta 5 loading screen poster, grand theft auto 5, grand theft auto video game', 'lowres, low resolution, bad quality, ugly, deformed, noisy, blurry')">GTA</button>
+						<button type="button" style="display: block; width: 30%; word-break: break-all;" onclick="loadPrompt('PROMPT. horror cgi 4k, scary color art in 4k, horror movie cinematography, insidious, la llorona, still from animated horror movie, film still from horror movie, haunted, eerie, unsettling, creepy', 'lowres, low resolution, bad quality, ugly, deformed, noisy, blurry')">Haunted</button>
+						<button type="button" style="display: block; width: 30%; word-break: break-all;" onclick="loadPrompt('PROMPT. single vector graphics icon, ios icon, smooth shape, vector', 'lowres, low resolution, bad quality, ugly, deformed, noisy, blurry')">Icon</button>
+						<button type="button" style="display: block; width: 30%; word-break: break-all;" onclick="loadPrompt('PROMPT. in square glass case, glass cube, glowing, knolling case, ash thorp, studio background, desktopography, cgsociety 9, cgsociety, mind-bending digital art', 'lowres, low resolution, bad quality, ugly, deformed, noisy, blurry')">Knoling<br/>Case</button>
+						<button type="button" style="display: block; width: 30%; word-break: break-all;" onclick="loadPrompt('PROMPT. creative logo, unique logo, visual identity, geometric type, graphic design, logotype design, brand identity, vector based, trendy typography, best of behance', 'lowres, low resolution, bad quality, ugly, deformed, noisy, blurry')">Logo</button>
+						<button type="button" style="display: block; width: 30%; word-break: break-all;" onclick="loadPrompt('PROMPT. movie still from game of thrones, powerful fantasy epic, middle ages, lush green landscape, olden times, roman empire, 1400 ce, highly detailed background, cinematic lighting, 8k render, high quality, bright colours', 'lowres, low resolution, bad quality, ugly, deformed, noisy, blurry')">Medieval</button>
+						<button type="button" style="display: block; width: 30%; word-break: break-all;" onclick="loadPrompt('PROMPT. neon art style, night time dark with neon colors, blue neon lighting, violet and aqua neon lights, blacklight neon colors, rococo cyber neon lighting', 'lowres, low resolution, bad quality, ugly, deformed, noisy, blurry')">Neon</button>
+						<button type="button" style="display: block; width: 30%; word-break: break-all;" onclick="loadPrompt('PROMPT. polygonal art, layered paper art, paper origami, wonderful compositions, folded geometry, paper craft, made from paper', 'lowres, low resolution, bad quality, ugly, deformed, noisy, blurry')">Origami</button>
+						<button type="button" style="display: block; width: 30%; word-break: break-all;" onclick="loadPrompt('PROMPT. layered paper art, paper modeling art, paper craft, paper art, papercraft, paper cutout, paper cut out collage artwork, paper cut art', 'lowres, low resolution, bad quality, ugly, deformed, noisy, blurry')">Papercut<br/>Style</button>
+						<button type="button" style="display: block; width: 30%; word-break: break-all;" onclick="loadPrompt('PROMPT. product photo studio lighting, high detail product photo, product photography, commercial product photography, realistic, light, 8k, award winning product photography, professional closeup', 'lowres, low resolution, bad quality, ugly, deformed, noisy, blurry')">Product<br/>Photography</button>
+						<button type="button" style="display: block; width: 30%; word-break: break-all;" onclick="loadPrompt('PROMPT. samurai lifesyle, miyamoto musashi, Japanese art, ancient japanese samurai, feudal japan art, feudal japan art', 'lowres, low resolution, bad quality, ugly, deformed, noisy, blurry')">Samurai</button>
+						<button type="button" style="display: block; width: 30%; word-break: break-all;" onclick="loadPrompt('PROMPT. shamrock fantasy, fantasy, vivid colors, grapevine, celtic fantasy art, lucky clovers, dreamlike atmosphere, captivating details, soft light and vivid colors', 'lowres, low resolution, bad quality, ugly, deformed, noisy, blurry')">Shamrock<br/>Fantasy</button>
+						<button type="button" style="display: block; width: 30%; word-break: break-all;" onclick="loadPrompt('PROMPT. intricate wiccan spectrum, stained glass art, vividly beautiful colors, beautiful stained glass window, colorful image, intricate stained glass triptych, gothic stained glass style, stained glass window', 'lowres, low resolution, bad quality, ugly, deformed, noisy, blurry')">Stained<br/>Glass</button>
+						<button type="button" style="display: block; width: 30%; word-break: break-all;" onclick="loadPrompt('PROMPT. sticker, sticker art, symmetrical sticker design, sticker - art, sticker illustration, die - cut sticker', 'lowres, low resolution, bad quality, ugly, deformed, noisy, blurry')">Sticker</button>
+						<button type="button" style="display: block; width: 30%; word-break: break-all;" onclick="loadPrompt('PROMPT. viking era, digital painting, pop of colour, forest, paint splatter, flowing colors, Background of lush forest and earthy tones, Artistic representation of movement and atmosphere', 'lowres, low resolution, bad quality, ugly, deformed, noisy, blurry')">Vibrant<br/>Viking</button>
+						<button type="button" style="display: block; width: 30%; word-break: break-all;" onclick="loadPrompt('PROMPT. water elements, fantasy, water, exotic. A majestic composition with water elements, waterfall, lush moss and exotic flowers, highly detailed and realistic, dynamic lighting', 'lowres, low resolution, bad quality, ugly, deformed, noisy, blurry')">Water<br/>Bender</button>
+						<button type="button" style="display: block; width: 30%; word-break: break-all;" onclick="loadPrompt('PROMPT. cute, c4d, made out of wool, volumetric wool felting, wool felting art, houdini sidefx, rendered in arnold, soft smooth lighting, soft pastel colors', 'lowres, low resolution, bad quality, ugly, deformed, noisy, blurry')">Woolitize</button>
+					</div>
+					<hr />
+					Referência: <a style="color:var(--input-text)" target="_blank" href="https://www.reddit.com/r/StableDiffusion/comments/15afvnb/sdxl_various_styles_keywords/">SDXL Various Styles Keywords</a>`);
+				}
+			}),
+
 			$el("button", {
 				id: "comfy-platform-button", textContent: "Sistema", onclick: async () => {
 					window.open(window.api_base + "/");
 				}
 			}),
+
 			$el("button", {
 				id: "comfy-about-button", textContent: "Aviso", onclick: async () => {
 					app.ui.dialog.show(`<span style="color:var(--input-text)"><b>AVISO IMPORTANTE</b>
@@ -634,7 +785,7 @@ export class ComfyUI {
 
 					Assim, ao utilizar esta plataforma, você se responsabiliza por todas as imagens que você gerar.
 
-					Os modelos de IA utilizados dentro da plataforma são gratuitos, publicamente disponíveis para download, e de responsabilidade dos respectivos autores.
+					Os modelos de IA utilizados dentro da plataforma são gratuitos, publicamente disponíveis para download, e de responsabilidade dos respectivos autores. Consulte a licença de cada modelo sobre o uso público/comercial das imagens geradas.
 
 					A ESPM <b>não se responsabiliza</b> por qualquer tipo de imagem gerada contendo conteúdo sensível, inapropriado, censurado, enviesado, ofensivo, falso, violento, que infrinja alguma lei ou direito autoral, ou de qualquer outra natureza que possa ser inadequada para alguma faixa etária ou que seja ofensivo a qualquer pessoa.
 
@@ -654,7 +805,11 @@ export class ComfyUI {
 
 					minecraft - <a style="color: inherit;" target="_blank" href="https://civitai.com/models/210380">https://civitai.com/models/210380</a>
 
+					omnium_v11 - <a style="color: inherit;" target="_blank" href="https://civitai.com/models/194245">https://civitai.com/models/194245</a>
+
 					realvisxlV30Turbo_v30Bakedvae - <a style="color: inherit;" target="_blank" href="https://civitai.com/models/139562">https://civitai.com/models/139562</a>
+
+					realvisxlV40_v40Bakedvae - <a style="color: inherit;" target="_blank" href="https://civitai.com/models/139562">https://civitai.com/models/139562</a>
 
 					tamarinXL_v10 - <a style="color: inherit;" target="_blank" href="https://civitai.com/models/235746">https://civitai.com/models/235746</a>
 
@@ -670,7 +825,7 @@ export class ComfyUI {
 		]);
 
 		// @@@ ESPM
-		this.menuContainer.children[this.menuContainer.children.length - 3].style.flex = "1 1 auto";
+		this.menuContainer.children[this.menuContainer.children.length - 4].style.flex = "1 1 auto";
 
 		const devMode = this.settings.addSetting({
 			id: "Comfy.DevMode",
