@@ -77,21 +77,21 @@
 
 			if (this.getAttribute("data-excluir")) {
 				Swal.okcancel({
-					html: 'Tem certeza que deseja excluir a imagem com id ' + imagem.id + '? Esta operação NÃO pode ser desfeita!<br/><br/>Para confirmar a exclusão, por favor, digite abaixo o id da imagem conforme exibido acima.<br/><br/><label for="txtExcluirId">Id da imagem</label><input type="text" class="form-control" spellcheck="false" autocomplete="off" id="txtExcluirId" />',
+					html: 'Tem certeza que deseja excluir a imagem com id ' + imagem.id + '? Esta operação NÃO pode ser desfeita!', //<br/><br/>Para confirmar a exclusão, por favor, digite abaixo o id da imagem conforme exibido acima.<br/><br/><label for="txtExcluirId">Id da imagem</label><input type="text" class="form-control" spellcheck="false" autocomplete="off" id="txtExcluirId" />',
 					confirmButtonText: "Excluir",
-					preConfirm: function () {
-						id = parseInt($("#txtExcluirId").val()) || 0;
-						return true;
-					}
+					//preConfirm: function () {
+					//	id = parseInt($("#txtExcluirId").val()) || 0;
+					//	return true;
+					//}
 				}, null, true).then(function (result) {
 					if (JsonWebApi.active || !trClicada)
 						return;
 
 					if (result.value) {
-						if (id !== parseInt(imagem.id)) {
-							Swal.error("O id da imagem não confere! " + emoji.sad);
-							return;
-						}
+						//if (id !== parseInt(imagem.id)) {
+						//	Swal.error("O id da imagem não confere! " + emoji.sad);
+						//	return;
+						//}
 
 						Swal.wait();
 

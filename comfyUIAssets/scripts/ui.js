@@ -825,6 +825,20 @@ export class ComfyUI {
 		]);
 
 		// @@@ ESPM
+		this.menuContainer.style.paddingTop = "40px";
+		const menuToggle = document.createElement("button");
+		menuToggle.textContent = "Menu";
+		menuToggle.type = "button";
+		menuToggle.className = "comfy-btn";
+		menuToggle.style.position = "absolute";
+		menuToggle.style.zIndex = "1000";
+		menuToggle.style.right = "10px";
+		menuToggle.style.top = "10px";
+		menuToggle.style.margin = "0";
+		menuToggle.onclick = () => {
+			this.menuContainer.style.display = ((this.menuContainer.style.display === "none") ? "" : "none");
+		};
+		document.body.appendChild(menuToggle);
 		this.menuContainer.children[this.menuContainer.children.length - 4].style.flex = "1 1 auto";
 
 		const devMode = this.settings.addSetting({
